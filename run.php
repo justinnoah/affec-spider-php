@@ -17,3 +17,4 @@ include("vendor/autoload.php");
 require_once("tare.php");
 
 $tare = new TareSite();
+$tare->search_by_name();
