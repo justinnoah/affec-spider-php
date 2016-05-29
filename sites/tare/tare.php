@@ -13,6 +13,8 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
+namespace Sites\Tare;
+
 /**
  * Long Desc
  *
@@ -147,7 +149,7 @@ class TareSite
         curl_close($ch);
 
         // Parse results for links
-        $soup = new simple_html_dom($result, $lower=true);
+        $soup = new \simple_html_dom($result, $lower=true);
         $links = $soup->find("a");
 
         // Specifically Child links

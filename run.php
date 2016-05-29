@@ -13,13 +13,18 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
+namespace Crawler;
+
+require("sites/tare/tare.php");
+use \Sites\Tare\TareSite as TareSite;
+require("crawler/utils.php");
+use Crawler\Utils;
 include("vendor/autoload.php");
-require_once("sites/tare/tare.php");
-require_once("crawler/utils.php");
+
 
 $tare = new TareSite();
-// $dot = string_dot(range("a", "z"), range("a", "z"));
-$dot = string_dot(range("a", "b"), range("a", "c"));
+// $dot = Utils\string_dot(range("a", "z"), range("a", "z"));
+$dot = Utils\string_dot(range("a", "b"), range("a", "c"));
 foreach ($dot as $name)
 {
     $tare->search_by_name($name);
