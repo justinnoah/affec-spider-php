@@ -18,10 +18,47 @@ namespace Crawler\DataTypes;
 /**
  * Short Desc
  *
+ * Child specific keys
+ */
+$children_keys = array(
+
+);
+
+/**
+ * Short Desc
+ *
+ * SiblingGroup specific keys
+ */
+$sibling_group_keys = array(
+
+);
+
+/**
+ * Short Desc
+ *
+ * Commone keys for Child and SiblingGroup objects
+ */
+$common_keys = array(
+
+);
+
+/**
+ * Short Desc
+ *
  * Object containing Children and SiblingGroup Objects
  */
 class AllChildren
 {
+    /**
+     * Short Desc
+     *
+     * Initialize an AllChildren object with children and sibling_group arrays
+     */
+    function __constructor()
+    {
+        $this->children = array();
+        $this->sibling_groups = array();
+    }
 }
 
 /**
@@ -31,6 +68,15 @@ class AllChildren
  */
 class Child
 {
+    /**
+     * Short Desc
+     *
+     * Initialize a Child object with a child array
+     */
+    function __constructor()
+    {
+        $this->child = array();
+    }
 }
 
 /**
@@ -40,5 +86,15 @@ class Child
  */
 class SiblingGroup
 {
+    /**
+     * Short Desc
+     *
+     * Initialize a SiblingGroup object with a sibling_group array
+     */
+    function __constructor()
+    {
+        $thi->sgroup = array();
+    }
 }
+
 ?>

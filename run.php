@@ -15,11 +15,14 @@
 
 namespace Crawler;
 
+// For PHP7
+// declare(strict_types=1);
+
+include("vendor/autoload.php");
+
 require("sites/tare/tare.php");
 use \Sites\Tare\TareSite as TareSite;
 require("crawler/utils.php");
-use Crawler\Utils;
-include("vendor/autoload.php");
 
 
 $tare = new TareSite();
