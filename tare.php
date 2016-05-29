@@ -25,9 +25,21 @@
  */
 class TareSite
 {
+    /**
+     * @var string BASEURL TARE base URL
+     */
     const BASEURL = "https://www.dfps.state.tx.us";
+    /**
+     * @var string LOGINURL TARE login URL
+     */
     const LOGINURL = self::BASEURL . "/Application/TARE/Account.aspx/Logon";
+    /**
+     * @var string SEARCHURL TARE search URL
+     */
     const SEARCHURL = self::BASEURL ."/Application/TARE/Search.aspx/NonMatchingSearchResults";
+    /**
+     * @var array STATE State Identifier
+     */
     const STATE = array("short" => "TX", "long" => "Texas");
 
     /**
@@ -68,10 +80,10 @@ class TareSite
      * Simplify the process of common curl options. Instead of needing to
      * remember combining the common options, just do it by calling this exec.
      *
-     * @param $ch cURL handle
-     * @param $data array to concat with common cURL opts
+     * @param mixed $ch cURL handle
+     * @param array $data array to concat with common cURL opts
      *
-     * @return String of rutrened data from curl_exec
+     * @return string of rutrened data from curl_exec
      */
     function __curl_exec($ch, $data)
     {
@@ -100,7 +112,8 @@ class TareSite
     /**
      * TARE decided to revamp their search page.
      *
-     * @param search: Name parameter for search
+     * @param string $name Name parameter for search
+     *
      * @return: An AllChildren object containing the parsed data of the
      * children and sibling groups found by the search
      */
