@@ -21,7 +21,16 @@ namespace Crawler\DataTypes;
  * Child specific keys
  */
 $children_keys = array(
-
+    "Age",
+    "AdoptionRecruitment",
+    "BulletinDate",
+    "BulletinNumber",
+    "Ethnicity",
+    "Gender",
+    "Name",
+    "PrimaryLanguage",
+    "Race",
+    "Siblings",
 );
 
 /**
@@ -30,7 +39,7 @@ $children_keys = array(
  * SiblingGroup specific keys
  */
 $sibling_group_keys = array(
-
+    "siblings",
 );
 
 /**
@@ -39,8 +48,108 @@ $sibling_group_keys = array(
  * Commone keys for Child and SiblingGroup objects
  */
 $common_keys = array(
-
+    "Attachments",
+    "Biography",
+    "CaseNumber",
+    "Contact",
+    "ImportedFrom",
+    "LegalStatus",
+    "ListingNotesForFamily",
+    "Name",
+    "PageURL",
+    "Region",
+    "State",
 );
+
+/**
+ * Short Desc
+ *
+ * Simple Guarenties for Common Objects
+ */
+interface SpiderCommonObject
+{
+    /**
+     * Short Desc
+     *
+     * Set a Value for a given Key
+     *
+     * @param string $key array key
+     * @param mixed $value array value
+     */
+    function set_value(string $key, mixed $value);
+}
+
+/**
+ * Short Desc
+ *
+ * Sibling Group representation
+ */
+class SiblingGroup implements SpiderCommonObject
+{
+    /**
+     * Short Desc
+     *
+     * Initialize a SiblingGroup object with a SiblngGroup array
+     */
+    function __constructor()
+    {
+        $this->sgroup = array();
+    }
+
+    /**
+     * Short Desc
+     *
+     * Set a data point for a SiblngGroup object
+     *
+     * @param string $slot is a valid data point for a child
+     * @param mixed $data is the value to set for the slot
+     */
+    function set_value(string $slot, mixed $data)
+    {
+        if (in_array($slot, $child_keys + $common_keys, true))
+        {
+            $this->child[$slot] = $data;
+        } else {
+            trigger_error(error_log("Cannot use $slot in a Child object."));
+        }
+    }
+}
+
+/**
+ * Short Desc
+ *
+ * Child representation
+ */
+class Child implements SpiderCommonObject
+{
+    /**
+     * Short Desc
+     *
+     * Initialize a Child object with a child array
+     */
+    function __constructor()
+    {
+        $this->child = array();
+    }
+
+    /**
+     * Short Desc
+     *
+     * Set a data point for a Child object
+     *
+     * @param string $slot is a valid data point for a Child
+     * @param mixed $data is the value to set for the slot
+     */
+    function set_value(string $slot, mixed $data)
+    {
+        if (in_array($slot, $child_keys + $common_keys, true))
+        {
+            $this->child[$slot] = $data;
+        } else {
+            trigger_error(error_log("Cannot use $slot in a Child object."));
+        }
+    }
+}
 
 /**
  * Short Desc
@@ -52,49 +161,129 @@ class AllChildren
     /**
      * Short Desc
      *
-     * Initialize an AllChildren object with children and sibling_group arrays
+     * Initialize an AllChildren object with Child and SiblingGroup arrays
+     *
+     * @param array $children list of Child objects to initilize with
+     * @param array $sibling_groups list of SiblingGroup objects to initilize with
      */
-    function __constructor()
+    function __constructor(array $children=array(), array $sibling_groups=array())
     {
-        $this->children = array();
-        $this->sibling_groups = array();
-    }
-}
+        // Guarantee each element of the Array is a Child object.
+        foreach ($children as $child)
+        {
+            if (not ($child instanceof Child))
+            {
+                trigger_error(error_log("$child is not a Child object."));
+            }
+        }
+        unset($child);
+        $this->children = $children;
 
-/**
- * Short Desc
- *
- * Child representation
- */
-class Child
-{
+        // Guarantee each element of the Array is a SiblingGroup object.
+        foreach ($sibling_groups as $group)
+        {
+            if (not ($group instanceof SiblingGroup))
+            {
+                trigger_error(error_log("$group is not a SiblingGroup object."));
+            }
+        }
+        unset($group);
+        $this->sibling_groups = $sibling_groups;
+    }
+
     /**
      * Short Desc
      *
-     * Initialize a Child object with a child array
+     * Retrieve the list of Child objects
+     *
+     * @return array containing Child objects
      */
-    function __constructor()
-    {
-        $this->child = array();
-    }
-}
+     function get_children()
+     {
+         return $this->children;
+     }
 
-/**
- * Short Desc
- *
- * Sibling Group representation
- */
-class SiblingGroup
-{
     /**
      * Short Desc
      *
-     * Initialize a SiblingGroup object with a sibling_group array
+     * Add a Child to the list of children
+     *
+     * @param Child $child Child being added
      */
-    function __constructor()
+    function add_child(Child $child)
     {
-        $thi->sgroup = array();
+        if ($group instanceof Child)
+        {
+            array_push($this->children, $child);
+        } else {
+            trigger_error(error_log("Unable to add $group to groups list"));
+        }
     }
+
+    /**
+     * Short Desc
+     *
+     * Retrieve the list of SiblingGroup objects
+     *
+     * @return array containing SiblingGroup objects
+     */
+     function get_sibling_groups()
+     {
+         return $this->sibling_groups;
+     }
+
+    /**
+     * Short Desc
+     *
+     * Add a SiblingGroup to the list of groups
+     *
+     * @param SiblingGroup $group Group being added
+     */
+    function add_sibling_group(SiblingGroup $group)
+    {
+        if ($group instanceof SiblingGroup)
+        {
+            array_push($this->sibling_groups, $group);
+        } else {
+            trigger_error(error_log("Unable to add $group to groups list"));
+        }
+    }
+
+    /**
+     * Short Desc
+     *
+     * Determine wither the AllChildren object is empty
+     *
+     * @return bool of whether or not the lists are empty
+     */
+     function is_empty()
+     {
+         // A simple count
+         $count = count($this->children) + count($this->sibling_groups);
+         if ($count == 0)
+         {
+             return true;
+         } else {
+             return false;
+         }
+     }
+
+     /**
+      * Short Desc
+      *
+      * Merge an AllChildren into this one
+      *
+      * @param AllChildren $other AllChildren to merge
+      */
+      function merge(AllChildren $other)
+      {
+          // Why bother adding if there aren't things to add?
+          if (not ($other->is_empty()))
+          {
+              $this->children += $other->get_children();
+              $this->sibling_groups += $other->get_sibling_groups();
+          }
+      }
 }
 
 ?>
