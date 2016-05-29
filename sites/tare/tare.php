@@ -83,7 +83,7 @@ class TareSite
      * @param mixed $ch cURL handle
      * @param array $data array to concat with common cURL opts
      *
-     * @return string of rutrened data from curl_exec
+     * @return string of returned data from curl_exec
      */
     function __curl_exec($ch, $data)
     {

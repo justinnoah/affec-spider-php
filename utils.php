@@ -13,14 +13,32 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-include("vendor/autoload.php");
-require_once("sites/tare/tare.php");
-require_once("utils.php");
-
-$tare = new TareSite();
-// $dot = string_dot(range("a", "z"), range("a", "z"));
-$dot = string_dot(range("a", "b"), range("a", "c"));
-foreach ($dot as $name)
+/**
+ * Short Desc
+ *
+ * Dot product of arrays
+ *
+ * @param array $outer characters in outer loop
+ * @param array $inner characters in inner loop
+ *
+ * @return array of combined strings
+ */
+function string_dot($outer, $inner)
 {
-    $tare->search_by_name($name);
+    // array of combined strings to return
+    $strings = array();
+
+    foreach ($outer as $fchar)
+    {
+        foreach ($inner as $schar)
+        {
+            $x = $fchar . $schar;
+            array_push($strings, $x);
+        }
+    }
+
+    // Return the array of strings
+    return $strings;
 }
+
+?>
