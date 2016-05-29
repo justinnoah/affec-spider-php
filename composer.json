@@ -1,21 +1,27 @@
 {
     "name": "afamilyforeverychild/tare-spider",
     "description": "Crawl TARE Site to Import Data",
-    "repositories": {
-        "package": {
-            "name": "developerforce/force.com-toolkit-for-php",
-            "version": "20.0.10",
-            "source": {
-                "url": "https://github.com/developerforce/Force.com-Toolkit-for-PHP.git",
-                "type": "git",
-                "reference": "tags/v20.0.10"
-            },
-            "dist": {
-                "url": "https://github.com/developerforce/Force.com-Toolkit-for-PHP/archive/v20.0.10.zip",
-                "type": "zip"
+    "repositories": [
+        {
+            "type": "package",
+            "package": {
+                "name": "developerforce/force.com-toolkit-for-php",
+                "version": "20.0.10",
+                "source": {
+                    "url": "https://github.com/developerforce/Force.com-Toolkit-for-PHP.git",
+                    "type": "git",
+                    "reference": "tags/v20.0.10"
+                },
+                "dist": {
+                    "url": "https://github.com/developerforce/Force.com-Toolkit-for-PHP/archive/v20.0.10.zip",
+                    "type": "zip",
+                    "autoload": {
+                        "classmap": ["soapclient/"]
+                    }
+                }
             }
         }
-    },
+    ],
     "require": {
         "emanueleminotto/simple-html-dom": "1.5.*",
         "doctrine/orm": "2.5.*",

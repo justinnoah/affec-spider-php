@@ -155,8 +155,6 @@ class TareSite
             }
             return false;
         });
-        printf("ChildLinks:\n%s", print_r($child_links, true));
-        printf("ChildLinkCont:\n%s", count($child_links));
     }
 }
 
