@@ -145,12 +145,26 @@ class TareSite
             trigger_error((curl_error($ch)));
         }
         curl_close($ch);
+
+        // Parse results for links
         $soup = new simple_html_dom($result, $lower=true);
         $links = $soup->find("a");
+
+        // Specifically Child links
         $child_links = array_filter($links, function($link) {
-            if (array_key_exists("href", $link->attr) && preg_match("/.*Child\.aspx.*/", $link->attr["href"], $res))
+            if (array_key_exists("href", $link->attr) &&
+                preg_match("/.*Child\.aspx.*/", $link->attr["href"], $res))
             {
-                printf("%s", print_r(var_dump($res), true));
+                return $res[0];
+            }
+            return false;
+        });
+
+        // Specifically Sibling Group links
+        $group_links = array_filter($links, function($link) {
+            if (array_key_exists("href", $link->attr) &&
+                preg_match("/.*Group\.aspx.*/", $link->attr["href"], $res))
+            {
                 return $res[0];
             }
             return false;
