@@ -14,7 +14,7 @@
 #  limitations under the License.
 
 include("vendor/autoload.php");
-require_once("tare.php");
+require_once("sites/tare/tare.php");
 
 $tare = new TareSite();
 $tare->search_by_name();
