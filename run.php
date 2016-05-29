@@ -15,7 +15,7 @@
 
 include("vendor/autoload.php");
 require_once("sites/tare/tare.php");
-require_once("utils.php");
+require_once("crawler/utils.php");
 
 $tare = new TareSite();
 // $dot = string_dot(range("a", "z"), range("a", "z"));
