@@ -15,6 +15,8 @@
 
 namespace Sites\Tare;
 
+use \Crawler\DataTypes as DataTypes;
+
 /**
  * Long Desc
  *
@@ -116,7 +118,7 @@ class TareSite
      *
      * @param string $name Name parameter for search
      *
-     * @return: An AllChildren object containing the parsed data of the
+     * @return DataTypes\AllChildren containing the parsed data of the
      * children and sibling groups found by the search
      */
     function search_by_name($name="aa")
