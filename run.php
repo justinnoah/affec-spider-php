@@ -21,18 +21,62 @@ if (version_compare(phpversion(), '7.0.0', '>='))
     declare(strict_types=1);
 }
 
-include("vendor/autoload.php");
+// STDLib includes
+use ErrorException;
 
+// Third Party includes
+include("vendor/autoload.php");
+use Symfony\Component\Yaml\Exception\ParseException;
+use Symfony\Component\Yaml\Yaml;
+
+// Project includes
+require("crawler/utils.php");
 require("sites/tare/tare.php");
 use Crawler\Sites\Tare\TareSite;
 
-require("crawler/utils.php");
 
 
-$tare = new TareSite();
-// $dot = Utils\string_dot(range("a", "z"), range("a", "z"));
-$dot = Utils\string_dot(range("a", "b"), range("a", "c"));
-foreach ($dot as $name)
+/**
+ * Short Desc
+ *
+ * Load config
+ */
+function load_config()
 {
-    $tare->search_by_name($name);
+    $file  = file_get_contents("./config.yaml");
+    try {
+        $config = Yaml::parse($file);
+    } catch (ParseException $e) {
+        exit($e);
+    }
+
+    return $config;
+}
+
+/**
+ * Short Desc
+ *
+ * Begin Search
+ *
+ * @param array $cfg Tare Config
+ */
+function search_tare($cfg)
+{
+    $tare = new TareSite($cfg);
+    // $dot = Utils\string_dot(range("a", "z"), range("a", "z"));
+    $dot = Utils\string_dot(range("a", "b"), range("a", "c"));
+    foreach ($dot as $name)
+    {
+        $tare->search_by_name($name);
+    }
+}
+
+try {
+    if (!($config = load_config()))
+    {
+        throw new ErrorException("Unable to continue without a proper config.");
+    }
+    search_tare($config["sites"]["tare"]);
+} catch (ErrorException $e) {
+    printf("%s\n", $e);
 }
