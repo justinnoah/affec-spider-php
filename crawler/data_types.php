@@ -361,11 +361,12 @@ class AllChildren
      */
     function add_child(Child $child)
     {
-        if ($group instanceof Child)
+        if ($child instanceof Child)
         {
             array_push($this->children, $child);
         } else {
-            error_log("Unable to add $group to groups list");
+            $type = gettype($child) || get_class($child);
+            error_log("Unable to add $type to children list");
         }
     }
 
@@ -434,5 +435,4 @@ class AllChildren
         }
     }
 }
-
 ?>

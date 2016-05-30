@@ -104,6 +104,9 @@ class PageParser
         } catch (Exception $e) {
             $this->log->error("Falide to parse CaseWorker for $this->url\n$e");
         }
+
+        // Return the parsed object
+        return $this->data;
     }
 
     /**

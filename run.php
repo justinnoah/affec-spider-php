@@ -82,18 +82,9 @@ function search_tare($cfg)
     $dot = Utils\string_dot(range("a", "b"), range("a", "c"));
     foreach ($dot as $name)
     {
+        printf("%s\n", $name);
         $tare->search_by_name($name);
-    }
-}
-
-try {
-    if (!($config = load_config()))
-    {
-        throw new \ErrorException("Unable to continue without a proper config.");
-    }
-    search_tare($config["sites"]["tare"]);
-} catch (\ErrorException $e) {
-    $log->critical($e);
+    };
 }
 
 /**
@@ -103,8 +94,15 @@ try {
  */
 function main()
 {
-    $cfg = load_config();
-    search_tare($cfg["sites"]["tare"]);
+    try {
+        if (!($config = load_config()))
+        {
+            throw new \ErrorException("Unable to continue without a proper config.");
+        }
+        search_tare($config["sites"]["tare"]);
+    } catch (\ErrorException $e) {
+        $log->critical($e);
+    }
 }
 
 main();

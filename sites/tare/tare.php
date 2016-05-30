@@ -22,6 +22,8 @@ require("sites/tare/utils.php");
 require("page_parser.php");
 use \Crawler\Sites\Tare\PageParse\PageParser;
 
+use Crawler\DataTypes\AllChildren;
+
 /**
  * Long Desc
  *
@@ -149,6 +151,7 @@ class TareSite
         if (!$result)
         {
             $this->log->error(curl_error($ch));
+            return new AllChildren();
         }
         curl_close($ch);
 
@@ -193,6 +196,8 @@ class TareSite
                 })
         );
 
+        $parsed_pages = new AllChildren();
+
         // Parse child pages for details to import
         foreach ($child_links as $clink)
         {
@@ -200,8 +205,7 @@ class TareSite
                 self::BASEURL, $clink, "Child",
                 $this->logHandler
             );
-            $child_obj->parse();
-            break;
+            $parsed_pages->add_child($child_obj->parse());
         }
         // Parse group pages for details to import
         foreach ($group_links as $glink)
@@ -210,10 +214,10 @@ class TareSite
                 self::BASEURL, $glink, "SiblingGroup",
                 $this->logHandler
             );
-            $group_obj->parse();
-            break;
+            $parsed_pages->add_sibling_group($group_obj->parse());
         }
+
+        return $parsed_pages;
     }
 }
-
 ?>
