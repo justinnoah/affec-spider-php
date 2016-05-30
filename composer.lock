@@ -4,9 +4,48 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "b73ac6329e2f93cf48a779626066a2cd",
-    "content-hash": "49bdd3aa729130874dc5b00e25606164",
+    "hash": "3c76719620e9fb195ee6fc1da15425a7",
+    "content-hash": "3d2319972c6c6e1019c33ed03d851fcd",
     "packages": [
+        {
+            "name": "carica/phpcss",
+            "version": "0.3.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/ThomasWeinert/PhpCss.git",
+                "reference": "df4e6884f14038af707fc2d518895ca95858dcb2"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/ThomasWeinert/PhpCss/zipball/df4e6884f14038af707fc2d518895ca95858dcb2",
+                "reference": "df4e6884f14038af707fc2d518895ca95858dcb2",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.5"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "PhpCss\\": "src/PhpCss"
+                },
+                "files": [
+                    "src/PhpCss.php"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT license"
+            ],
+            "authors": [
+                {
+                    "name": "Thomas Weinert",
+                    "email": "thomas@weinert.info"
+                }
+            ],
+            "description": "An css selector parser and converter",
+            "time": "2014-06-23 08:25:18"
+        },
         {
             "name": "doctrine/annotations",
             "version": "v1.2.7",
@@ -657,22 +696,22 @@
             "time": "2015-07-07 13:34:07"
         },
         {
-            "name": "fluentdom/selectors-symfony",
+            "name": "fluentdom/selectors-phpcss",
             "version": "1.0.0",
             "source": {
                 "type": "git",
-                "url": "https://github.com/FluentDOM/Selectors-Symfony.git",
-                "reference": "ea8014fc78c2fdcd703198bcbcf8c41619b4e40b"
+                "url": "https://github.com/FluentDOM/Selectors-PHPCss.git",
+                "reference": "79c897ff486ea5ee973a14156825e640f79609cd"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/FluentDOM/Selectors-Symfony/zipball/ea8014fc78c2fdcd703198bcbcf8c41619b4e40b",
-                "reference": "ea8014fc78c2fdcd703198bcbcf8c41619b4e40b",
+                "url": "https://api.github.com/repos/FluentDOM/Selectors-PHPCss/zipball/79c897ff486ea5ee973a14156825e640f79609cd",
+                "reference": "79c897ff486ea5ee973a14156825e640f79609cd",
                 "shasum": ""
             },
             "require": {
-                "fluentdom/fluentdom": "^5.3",
-                "symfony/css-selector": "~2.6"
+                "carica/phpcss": "~0.3",
+                "fluentdom/fluentdom": "^5.3"
             },
             "provide": {
                 "fluentdom/css-selector": "1.0.0"
@@ -683,7 +722,7 @@
                     "src/plugin.php"
                 ],
                 "psr-4": {
-                    "FluentDOM\\Symfony\\CssSelector\\": "src/"
+                    "FluentDOM\\PhpCss\\": "src/"
                 }
             },
             "notification-url": "https://packagist.org/downloads/",
@@ -696,7 +735,7 @@
                     "homepage": "https://github.com/FluentDOM/FluentDOM/contributors"
                 }
             ],
-            "description": "Provides CSS selector for FluentDOM using Symfony CSS Selectors.",
+            "description": "Provides CSS selector for FluentDOM using Carica PHPCss.",
             "homepage": "http://fluentdom.org",
             "keywords": [
                 "css",
@@ -705,7 +744,7 @@
                 "jquery",
                 "xml"
             ],
-            "time": "2015-07-07 13:43:33"
+            "time": "2015-07-07 13:40:43"
         },
         {
             "name": "monolog/monolog",
@@ -882,59 +921,6 @@
             "description": "Symfony Console Component",
             "homepage": "https://symfony.com",
             "time": "2016-05-30 06:58:39"
-        },
-        {
-            "name": "symfony/css-selector",
-            "version": "v2.8.6",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/symfony/css-selector.git",
-                "reference": "07b7ced3ae0c12918477c095453ea8595000810e"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/symfony/css-selector/zipball/07b7ced3ae0c12918477c095453ea8595000810e",
-                "reference": "07b7ced3ae0c12918477c095453ea8595000810e",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=5.3.9"
-            },
-            "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "2.8-dev"
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "Symfony\\Component\\CssSelector\\": ""
-                },
-                "exclude-from-classmap": [
-                    "/Tests/"
-                ]
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Jean-François Simon",
-                    "email": "jeanfrancois.simon@sensiolabs.com"
-                },
-                {
-                    "name": "Fabien Potencier",
-                    "email": "fabien@symfony.com"
-                },
-                {
-                    "name": "Symfony Community",
-                    "homepage": "https://symfony.com/contributors"
-                }
-            ],
-            "description": "Symfony CssSelector Component",
-            "homepage": "https://symfony.com",
-            "time": "2016-03-04 07:54:35"
         },
         {
             "name": "symfony/polyfill-mbstring",

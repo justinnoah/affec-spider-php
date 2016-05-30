@@ -25,7 +25,7 @@
     "require": {
         "doctrine/orm": "2.5.*",
         "fluentdom/fluentdom": "5.3",
-        "fluentdom/selectors-symfony": "1.0",
+        "fluentdom/selectors-phpcss": "1.0",
         "monolog/monolog": "1.19",
         "symfony/yaml": "2.*"
     },
