@@ -138,36 +138,26 @@ interface SpiderCommonInterface
 /**
  * Short Desc
  *
- * Attachment representation
+ * Base class with common methods for the majority of the DataTypes
  */
-class Attachment implements SpiderCommonInterface
+class DType implements SpiderCommonInterface
 {
     /**
      * Short Desc
      *
-     * Initialize an Attachment object with an array
-     */
-    function __construct()
-    {
-        $this->allowed_keys = unserialize(ATTACHMENT_KEYS);
-        $this->attachment = array();
-    }
-
-    /**
-     * Short Desc
+     * Set a data point forAthe guarded array
      *
-     * Set a data point for an Attachment object
-     *
-     * @param string $slot is a valid data point for an attechment
+     * @param string $slot is a valid key for the guarded array
      * @param mixed $data is the value to set for the slot
      */
     function set_value($slot, $data)
     {
         if (in_array($slot, $this->allowed_keys, true))
         {
-            $this->attachment[$slot] = $data;
+            $this->guarded_array[$slot] = $data;
         } else {
-            trigger_error(error_log("Cannot use $slot in an Attachment object."));
+            $cls = get_class($this);
+            error_log("Cannot use $slot in a(n) $cls object.");
         }
     }
 
@@ -176,22 +166,23 @@ class Attachment implements SpiderCommonInterface
      *
      * Get value from guarded array
      *
-     * @param string $key to retrive value of
+     * @param string $key of guarded array
      * @return mixed value
      */
      function get_value($key)
      {
          if (in_array($key, $this->allowed_keys))
          {
-             if (in_array($key, array_keys($this->attachment)))
+             if (in_array($key, array_keys($this->guarded_array)))
              {
-                 return $this->attachment[$key];
+                 return $this->guarded_array[$key];
              } else {
-                 $this->attachment[$key] = "";
-                 return $this->attachment[$key];
+                 $this->guarded_array[$key] = "";
+                 return $this->guarded_array[$key];
              }
          } else {
-             trigger_error(error_log("$key is not a valid Attachment key"));
+             $cls = get_class($this);
+             error_log("$key is not a valid $cls key");
          }
      }
 
@@ -204,7 +195,7 @@ class Attachment implements SpiderCommonInterface
      */
     function as_array()
     {
-        return $this->attachment;
+        return $this->guarded_array;
     }
 
     /**
@@ -218,13 +209,34 @@ class Attachment implements SpiderCommonInterface
      */
      static function from_array(array $data)
      {
-         $att = new Attachment();
+         $dt = new $this();
          foreach($data as $key => $value)
          {
-             $att->set_value($key, $value);
+             $dt->set_value($key, $value);
          }
-         return $att;
+         return $dt;
      }
+
+}
+
+/**
+ * Short Desc
+ *
+ * Attachment representation
+ */
+class Attachment extends DType
+{
+    /**
+     * Short Desc
+     *
+     * Initialize an Attachment object with an array
+     */
+    function __construct()
+    {
+        $this->allowed_keys = unserialize(ATTACHMENT_KEYS);
+        $this->guarded_array = array();
+    }
+
 }
 
 /**
@@ -232,7 +244,7 @@ class Attachment implements SpiderCommonInterface
  *
  * CaseWorker representation
  */
-class CaseWorker implements SpiderCommonInterface
+class CaseWorker extends DType
 {
     /**
      * Short Desc
@@ -242,89 +254,16 @@ class CaseWorker implements SpiderCommonInterface
     function __construct()
     {
         $this->allowed_keys = unserialize(CASEWORKER_KEYS);
-        $this->caseworker = array();
+        $this->guarded_array = array();
     }
-
-    /**
-     * Short Desc
-     *
-     * Set a data point for a CaseWorker object
-     *
-     * @param string $slot is a valid data point for a caseworker
-     * @param mixed $data is the value to set for the slot
-     */
-    function set_value($slot, $data)
-    {
-        if (in_array($slot, $this->allowed_keys, true))
-        {
-            $this->caseworker[$slot] = $data;
-        } else {
-            trigger_error(error_log("Cannot use $slot in a CaseWorker object."));
-        }
-    }
-
-    /**
-     * Short Desc
-     *
-     * Get value from guarded array
-     *
-     * @param string $key to retrive value of
-     * @return mixed value
-     */
-     function get_value($key)
-     {
-         if (in_array($key, $this->allowed_keys))
-         {
-             if (in_array($key, array_keys($this->caseworker)))
-             {
-                 return $this->caseworker[$key];
-             } else {
-                 $this->caseworker[$key] = "";
-                 return $this->caseworker[$key];
-             }
-         } else {
-             trigger_error(error_log("$key is not a valid CaseWorker key"));
-         }
-     }
-
-    /**
-     * Short Desc
-     *
-     * Returns an Attachment as an unguarded array
-     *
-     * @return array
-     */
-    function as_array()
-    {
-        return $this->caseworker;
-    }
-
-    /**
-     * Short Desc
-     *
-     * Import an array as an CaseWorker
-     *
-     * @param array $data
-     *
-     * @return CaseWorker
-     */
-     static function from_array(array $data)
-     {
-         $att = new CaseWorker();
-         foreach($data as $key => $value)
-         {
-             $att->set_value($key, $value);
-         }
-         return $att;
-     }
- }
+}
 
 /**
  * Short Desc
  *
  * Sibling Group representation
  */
-class SiblingGroup implements SpiderCommonInterface
+class SiblingGroup extends DType
 {
     /**
      * Short Desc
@@ -336,82 +275,8 @@ class SiblingGroup implements SpiderCommonInterface
         $this->allowed_keys = array_merge(
             unserialize(SIBLING_GROUP_KEYS), unserialize(COMMON_KEYS)
         );
-        $this->sgroup = array();
+        $this->guarded_array = array();
     }
-
-    /**
-     * Short Desc
-     *
-     * Set a data point for a SiblngGroup object
-     *
-     * @param string $slot is a valid data point for a sibling group
-     * @param mixed $data is the value to set for the slot
-     */
-    function set_value($slot, $data)
-    {
-        if (in_array($slot, $this->allowed_keys, true))
-        {
-            $this->sgroup[$slot] = $data;
-        } else {
-            trigger_error(error_log("Cannot use $slot in a SiblingGroup object."));
-        }
-    }
-
-    /**
-     * Short Desc
-     *
-     * Get value from guarded array
-     *
-     * @param string $key to retrive value of
-     * @return mixed value
-     */
-     function get_value($key)
-     {
-         if (in_array($key, $this->allowed_keys))
-         {
-             if (in_array($key, array_keys($this->sgroup)))
-             {
-                 return $this->sgroup[$key];
-             } else {
-                 $this->sgroup[$key] = "";
-                 return $this->sgroup[$key];
-             }
-         } else {
-             trigger_error(error_log("$key is not a valid SiblingGroup key"));
-         }
-     }
-
-
-    /**
-     * Short Desc
-     *
-     * Returns SiblingGroup as an unguarded array
-     *
-     * @return array
-     */
-    function as_array()
-    {
-        return $this->sgroup;
-    }
-
-    /**
-     * Short Desc
-     *
-     * Import an array as a SiblingGroup
-     *
-     * @param array $data
-     *
-     * @return SiblingGroup
-     */
-     static function from_array(array $data)
-     {
-         $sg = new SiblingGroup();
-         foreach($data as $key => $value)
-         {
-             $sg->set_value($key, $value);
-         }
-         return $sg;
-     }
 }
 
 /**
@@ -419,7 +284,7 @@ class SiblingGroup implements SpiderCommonInterface
  *
  * Child representation
  */
-class Child implements SpiderCommonInterface
+class Child extends DType
 {
     /**
      * Short Desc
@@ -431,82 +296,8 @@ class Child implements SpiderCommonInterface
         $this->allowed_keys = array_merge(
             unserialize(CHILDREN_KEYS), unserialize(COMMON_KEYS)
         );
-        $this->child = array();
+        $this->guarded_array = array();
     }
-
-    /**
-     * Short Desc
-     *
-     * Set a data point for a Child object
-     *
-     * @param string $slot is a valid data point for a Child
-     * @param mixed $data is the value to set for the slot
-     */
-    function set_value($slot, $data)
-    {
-        if (in_array($slot, $this->allowed_keys, true))
-        {
-            $this->child[$slot] = $data;
-        } else {
-            trigger_error(error_log("Cannot use $slot in a Child object."));
-        }
-    }
-
-    /**
-     * Short Desc
-     *
-     * Get value from guarded array
-     *
-     * @param string $key to retrive value of
-     * @return mixed value
-     */
-     function get_value($key)
-     {
-         if (in_array($key, $this->allowed_keys))
-         {
-             if (in_array($key, array_keys($this->child)))
-             {
-                 return $this->child[$key];
-             } else {
-                 $this->child[$key] = "";
-                 return $this->child[$key];
-             }
-         } else {
-             trigger_error(error_log("$key is not a valid Child key"));
-         }
-     }
-
-
-    /**
-     * Short Desc
-     *
-     * Returns Child as an unguarded array
-     *
-     * @return array
-     */
-    function as_array()
-    {
-        return $this->child;
-    }
-
-    /**
-     * Short Desc
-     *
-     * Import an array as a Child
-     *
-     * @param array $data
-     *
-     * @return Child
-     */
-     static function from_array(array $data)
-     {
-         $c = new Child();
-         foreach($data as $key => $value)
-         {
-             $c->set_value($key, $value);
-         }
-         return $c;
-     }
 }
 
 /**
@@ -531,7 +322,7 @@ class AllChildren
         {
             if (not ($child instanceof Child))
             {
-                trigger_error(error_log("$child is not a Child object."));
+                error_log("$child is not a Child object.");
             }
         }
         unset($child);
@@ -542,7 +333,7 @@ class AllChildren
         {
             if (not ($group instanceof SiblingGroup))
             {
-                trigger_error(error_log("$group is not a SiblingGroup object."));
+                error_log("$group is not a SiblingGroup object.");
             }
         }
         unset($group);
@@ -556,10 +347,10 @@ class AllChildren
      *
      * @return array containing Child objects
      */
-     function get_children()
-     {
+    function get_children()
+    {
          return $this->children;
-     }
+    }
 
     /**
      * Short Desc
@@ -574,7 +365,7 @@ class AllChildren
         {
             array_push($this->children, $child);
         } else {
-            trigger_error(error_log("Unable to add $group to groups list"));
+            error_log("Unable to add $group to groups list");
         }
     }
 
@@ -603,7 +394,7 @@ class AllChildren
         {
             array_push($this->sibling_groups, $group);
         } else {
-            trigger_error(error_log("Unable to add $group to groups list"));
+            error_log("Unable to add $group to groups list");
         }
     }
 
@@ -614,34 +405,34 @@ class AllChildren
      *
      * @return bool of whether or not the lists are empty
      */
-     function is_empty()
-     {
-         // A simple count
-         $count = count($this->children) + count($this->sibling_groups);
-         if ($count == 0)
-         {
-             return true;
-         } else {
-             return false;
-         }
-     }
+    function is_empty()
+    {
+        // A simple count
+        $count = count($this->children) + count($this->sibling_groups);
+        if ($count == 0)
+        {
+            return true;
+        } else {
+            return false;
+        }
+    }
 
-     /**
-      * Short Desc
-      *
-      * Merge an AllChildren into this one
-      *
-      * @param AllChildren $other AllChildren to merge
-      */
-      function merge(AllChildren $other)
-      {
-          // Why bother adding if there aren't things to add?
-          if (not ($other->is_empty()))
-          {
-              $this->children += $other->get_children();
-              $this->sibling_groups += $other->get_sibling_groups();
-          }
-      }
+    /**
+     * Short Desc
+     *
+     * Merge an AllChildren into this one
+     *
+     * @param AllChildren $other AllChildren to merge
+     */
+    function merge(AllChildren $other)
+    {
+        // Why bother adding if there aren't things to add?
+        if (not ($other->is_empty()))
+        {
+            $this->children += $other->get_children();
+            $this->sibling_groups += $other->get_sibling_groups();
+        }
+    }
 }
 
 ?>
