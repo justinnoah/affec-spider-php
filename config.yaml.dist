@@ -1,0 +1,12 @@
+sites:
+    tare:
+        username: ''
+        password: test
+databases:
+    salesforce:
+        username: test
+        password: test
+        token: aosenthu
+        sandbox: true
+        contact_account: aosnetuhasonetuh
+        cache_db: derp.sql
