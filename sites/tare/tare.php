@@ -13,9 +13,11 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-namespace Sites\Tare;
+namespace Crawler\Sites\Tare;
 
-use \Crawler\DataTypes as DataTypes;
+use \Crawler\DataTypes;
+
+require("sites/tare/utils.php");
 
 /**
  * Long Desc
@@ -66,7 +68,7 @@ class TareSite
 
         // Login
         $ch = curl_init();
-        $result = $this->__curl_exec($ch, $opts);
+        $result = Utils\curl_exec_opts($ch, $opts);
         if (!$result)
         {
             trigger_error((curl_error($ch)));
@@ -77,39 +79,10 @@ class TareSite
     /**
      * Short Desc
      *
-     * Hondle curl exec common opts
-     *
-     * Long Desc
-     *
-     * Simplify the process of common curl options. Instead of needing to
-     * remember combining the common options, just do it by calling this exec.
-     *
-     * @param mixed $ch cURL handle
-     * @param array $data array to concat with common cURL opts
-     *
-     * @return string of returned data from curl_exec
-     */
-    function __curl_exec($ch, $data)
-    {
-        curl_setopt_array($ch, $this->curl_opts + $data);
-        return curl_exec($ch);
-    }
-
-    /**
-     * Short Desc
-     *
      * Login to TARE for session prep
      */
     function __construct()
     {
-        $this->cookie_jar = tempnam("/tmp", "axv");
-        $this->curl_opts = array(
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_SSL_VERIFYPEER => false,
-            CURLOPT_SSL_VERIFYHOST => false,
-            CURLOPT_COOKIESESSION => true,
-            CURLOPT_COOKIEJAR => $this->cookie_jar,
-        );
         $this->login();
     }
 
@@ -142,7 +115,7 @@ class TareSite
 
         // Simple Search
         $ch = curl_init();
-        $result = $this->__curl_exec($ch, $opts);
+        $result = Utils\curl_exec_opts($ch, $opts);
         $info = curl_getinfo($ch);
         if (!$result)
         {
