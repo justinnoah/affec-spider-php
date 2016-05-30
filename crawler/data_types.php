@@ -15,6 +15,7 @@
 
 namespace Crawler\DataTypes;
 
+
 /**
  * Short Desc
  *
@@ -64,9 +65,21 @@ $common_keys = array(
 /**
  * Short Desc
  *
+ * Valid Attachment Keys
+ */
+$attachment_keys = array(
+    "Content",
+    "ContentType",
+    "Profile",
+    "BodyLength",
+);
+
+/**
+ * Short Desc
+ *
  * Simple Guarenties for Common Objects
  */
-interface SpiderCommonObject
+interface SpiderCommonInterface
 {
     /**
      * Short Desc
@@ -77,6 +90,94 @@ interface SpiderCommonObject
      * @param mixed $value array value
      */
     function set_value(string $key, mixed $value);
+
+    /**
+     * Short Desc
+     *
+     * Return the guarded array
+     *
+     * @return array
+     */
+    function as_array();
+
+    /**
+     * Short Desc
+     *
+     * Import an array as an object
+     *
+     * @param array $data
+     *
+     * @return mixed
+     */
+     static function from_array(array $data);
+}
+
+/**
+ * Short Desc
+ *
+ *
+ * Attachment representation
+ */
+class Attachment implements SpiderCommonInterface
+{
+    /**
+     * Short Desc
+     *
+     * Initialize an Attachment object with an array
+     */
+    function __constructor()
+    {
+        $this->attachment = array();
+    }
+
+    /**
+     * Short Desc
+     *
+     * Set a data point for an Attachment object
+     *
+     * @param string $slot is a valid data point for an attechment
+     * @param mixed $data is the value to set for the slot
+     */
+    function set_value(string $slot, mixed $data)
+    {
+        if (in_array($slot, $attachment_keys, true))
+        {
+            $this->child[$slot] = $data;
+        } else {
+            trigger_error(error_log("Cannot use $slot in an Attachment object."));
+        }
+    }
+
+    /**
+     * Short Desc
+     *
+     * Returns an Attachment as an unguarded array
+     *
+     * @return array
+     */
+    function as_array()
+    {
+        return $this->attachment;
+    }
+
+    /**
+     * Short Desc
+     *
+     * Import an array as an Attachment
+     *
+     * @param array $data
+     *
+     * @return Attachment
+     */
+     static function from_array(array $data)
+     {
+         $att = new Attachment();
+         foreach($data as $key => $value)
+         {
+             $att->set_value($key, $value);
+         }
+         return $att;
+     }
 }
 
 /**
@@ -84,12 +185,12 @@ interface SpiderCommonObject
  *
  * Sibling Group representation
  */
-class SiblingGroup implements SpiderCommonObject
+class SiblingGroup implements SpiderCommonInterface
 {
     /**
      * Short Desc
      *
-     * Initialize a SiblingGroup object with a SiblngGroup array
+     * Initialize a SiblingGroup object with an array
      */
     function __constructor()
     {
@@ -101,18 +202,49 @@ class SiblingGroup implements SpiderCommonObject
      *
      * Set a data point for a SiblngGroup object
      *
-     * @param string $slot is a valid data point for a child
+     * @param string $slot is a valid data point for a sibling group
      * @param mixed $data is the value to set for the slot
      */
     function set_value(string $slot, mixed $data)
     {
-        if (in_array($slot, $child_keys + $common_keys, true))
+        if (in_array($slot, $sibling_group_keys + $common_keys, true))
         {
-            $this->child[$slot] = $data;
+            $this->sgroup[$slot] = $data;
         } else {
-            trigger_error(error_log("Cannot use $slot in a Child object."));
+            trigger_error(error_log("Cannot use $slot in a SiblingGroup object."));
         }
     }
+
+    /**
+     * Short Desc
+     *
+     * Returns SiblingGroup as an unguarded array
+     *
+     * @return array
+     */
+    function as_array()
+    {
+        return $this->sgroup;
+    }
+
+    /**
+     * Short Desc
+     *
+     * Import an array as a SiblingGroup
+     *
+     * @param array $data
+     *
+     * @return SiblingGroup
+     */
+     static function from_array(array $data)
+     {
+         $sg = new SiblingGroup();
+         foreach($data as $key => $value)
+         {
+             $sg->set_value($key, $value);
+         }
+         return $sg;
+     }
 }
 
 /**
@@ -120,7 +252,7 @@ class SiblingGroup implements SpiderCommonObject
  *
  * Child representation
  */
-class Child implements SpiderCommonObject
+class Child implements SpiderCommonInterface
 {
     /**
      * Short Desc
@@ -149,6 +281,37 @@ class Child implements SpiderCommonObject
             trigger_error(error_log("Cannot use $slot in a Child object."));
         }
     }
+
+    /**
+     * Short Desc
+     *
+     * Returns Child as an unguarded array
+     *
+     * @return array
+     */
+    function as_array()
+    {
+        return $this->child;
+    }
+
+    /**
+     * Short Desc
+     *
+     * Import an array as a Child
+     *
+     * @param array $data
+     *
+     * @return Child
+     */
+     static function from_array(array $data)
+     {
+         $c = new Child();
+         foreach($data as $key => $value)
+         {
+             $c->set_value($key, $value);
+         }
+         return $c;
+     }
 }
 
 /**
