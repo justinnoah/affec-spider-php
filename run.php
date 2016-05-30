@@ -15,13 +15,17 @@
 
 namespace Crawler;
 
-// For PHP7
-// declare(strict_types=1);
+// If we are on PHP 7 or better, force type checking
+if (version_compare(phpversion(), '7.0.0', '>='))
+{
+    declare(strict_types=1);
+}
 
 include("vendor/autoload.php");
 
 require("sites/tare/tare.php");
-use \Sites\Tare\TareSite as TareSite;
+use Crawler\Sites\Tare\TareSite;
+
 require("crawler/utils.php");
 
 
