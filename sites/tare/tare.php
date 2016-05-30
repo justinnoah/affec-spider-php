@@ -151,16 +151,6 @@ class TareSite
             }
             return false;
         });
-        foreach ($child_links as $clink)
-        {
-            $child_url = self::BASEURL . $clink->attr["href"];
-            printf("URL: %s\n", $child_url);
-            $child_obj = new PageParser(
-                self::BASEURL, $clink->attr["href"], "Child"
-            );
-            $child_obj->parse();
-            break;
-        }
 
         // Specifically Sibling Group links
         $group_links = array_filter($links, function($link) {
@@ -171,6 +161,28 @@ class TareSite
             }
             return false;
         });
+
+        // Parse child pages for details to import
+        foreach ($child_links as $clink)
+        {
+            $child_url = self::BASEURL . $clink->attr["href"];
+            printf("URL: %s\n", $child_url);
+            $child_obj = new PageParser(
+                self::BASEURL, $clink->attr["href"], "Child"
+            );
+            $child_obj->parse();
+            break;
+        }
+        // Parse group pages for details to import
+        foreach ($group_links as $glink)
+        {
+            $group_url = self::BASEURL . $glink->attr["href"];
+            printf("URL: %s\n", $group_url);
+            $group_obj = new PageParser(
+                self::BASEURL, $glink->attr["href"], "SiblingGroup"
+            );
+            $group_obj->parse();
+        }
     }
 }
 

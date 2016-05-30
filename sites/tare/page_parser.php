@@ -21,10 +21,8 @@ require("crawler/data_types.php");
 use \Crawler\DataTypes\Child;
 use \Crawler\DataTypes\AllChildren;
 use \Crawler\DataTypes\SiblingGroup;
-
 use \Crawler\Sites\Tare\Utils;
-
-use Crawler\DataTypes\Attachment;
+use \Crawler\DataTypes\Attachment;
 
 define("ALL_SIBLINGS_SELECTOR", "div[id=pageContent] > div:0 > div[class=galleryImage]");
 define("CHILD_CASE_NUMBER", "div[id=pageContent] > div:0 > div:0 > div:2 > span:0");
@@ -179,6 +177,7 @@ class PageParser
         $profile_picture = Attachment::from_array(array(
             "Profile" => true,
             "Content" => $profile_picture_data,
+            // This works for BodyLength, or curl_getinfo($ch)['download_content_length']
             "BodyLength" => count(unpack("C*", $profile_picture_data)),
         ));
         curl_close($ch);
