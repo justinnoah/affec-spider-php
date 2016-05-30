@@ -50,6 +50,10 @@ class TareSite
      * @var array STATE State Identifier
      */
     const STATE = array("short" => "TX", "long" => "Texas");
+    /**
+     * @var string LGINREDIRECT Correct landing page upon successful login
+     */
+    const LOGINREDIRECT = "https://www.dfps.state.tx.us/Application/TARE/Search.aspx/Children";
 
     /**
      * Short Desc
@@ -90,8 +94,9 @@ class TareSite
         if (!$result)
         {
             trigger_error((curl_error($ch)));
-        } else {
-            printf("Logged In!\n");
+        } else if (!curl_getinfo($ch)["redirect_url"] == self::LOGINREDIRECT)
+        {
+            exit("Fail");
         }
         curl_close($ch);
     }
