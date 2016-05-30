@@ -54,13 +54,28 @@ class TareSite
     /**
      * Short Desc
      *
+     * Login to TARE for session prep
+     *
+     * @param array $config user/pass for TARE
+     */
+    function __construct($config)
+    {
+        $this->username = $config["username"];
+        $this->password = $config["password"];
+        $this->login();
+    }
+
+    /**
+     * Short Desc
+     *
      * Login to Tare
      */
     function login()
     {
         // Login Credentials
         $data = array(
-            "UserName" => "test", "Password" => "test"
+            "UserName" => $this->username,
+            "Password" => $this->password,
         );
         printf("Login URL: %s\n", self::LOGINURL);
         $opts = array(
@@ -79,16 +94,6 @@ class TareSite
             printf("Logged In!\n");
         }
         curl_close($ch);
-    }
-
-    /**
-     * Short Desc
-     *
-     * Login to TARE for session prep
-     */
-    function __construct()
-    {
-        $this->login();
     }
 
     /**
