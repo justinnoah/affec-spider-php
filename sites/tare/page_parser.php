@@ -28,8 +28,8 @@ define("ALL_SIBLINGS_SELECTOR", "div#pageContent > div > div.galleryImage");
 define("CHILD_CASE_NUMBER", "div#pageContent > div > div > div:nth-child(2) > span");
 
 define("ATTACHMENT_SELECTORS", serialize(array(
-    "profile_picture" => "div##Information > div.galleryImage > a.imageLightbox",
-    "other_pictures" => "div#contentGallery > a.imageLightbox"
+    "profile_picture" => "div.galleryImage > a.imageLightbox",
+    "other_pictures" => "div#contentGallery > div > div > a.imageLightbox"
 )));
 
 /**
@@ -87,8 +87,9 @@ class PageParser
             CURLOPT_POST => false,
         );
         $page_data = Utils\curl_exec_opts($ch, $opts);
-        $this->soup = \FluentDOM::QueryCss($page_data);
         curl_close($ch);
+        $this->soup = new \FluentDOM\Document();
+        $this->soup->loadHTML($page_data);
 
         // Using a try/catch paradigm, parse attachments,
         // caseworker info, and child or group data
@@ -124,14 +125,18 @@ class PageParser
         $attachments = array();
 
         // Find Profile Picture node
-        $node = $this->soup->first($selectors["profile_picture"]);
+        $node = $this->soup->querySelector($selectors["profile_picture"]);
 
         // Safely grab the picture url if possible
         $profile_picture_url = false;
         if (preg_match("/.*Media\.aspx\/GetPhoto.*/", $node["href"]))
         {
-            $profile_picture_url = $node["href"];
+            $profile_picture_url = $this->base . $node["href"];
+            $this->log->debug("Found profile picture url: $profile_picture_url");
+        } else {
+            $this->log->debug("href: " . $node["href"]);
         }
+
 
         // Download Picture data and create an attachment for it
         if ($profile_picture_url)
@@ -142,7 +147,8 @@ class PageParser
                 CURLOPT_POST => false,
             );
             $profile_picture_data = Utils\curl_exec_opts($ch, $opts);
-            $profile_picture = Attachment::from_array(array(
+            $profile_picture = new Attachment();
+            $profile_picture->from_array(array(
                 "Profile" => true,
                 "Content" => $profile_picture_data,
                 // This works for BodyLength, or curl_getinfo($ch)['download_content_length']
@@ -156,14 +162,13 @@ class PageParser
             $this->log->error("No profile picture found for $this->url\n");
         }
 
-        // Now to grab all other pictures
-        $nodes = $this->soup->find($selectors["other_pictures"]);
-        $picture_url = "";
+        // Now to grab all other pictures and create attachments out of them
+        $nodes = $this->soup->querySelectorAll($selectors["other_pictures"]);
+        $this->log->debug("Found " . $nodes->length . " more attachments.");
         foreach ($nodes as $node)
         {
             // Safely grab the picture url if possible
-            if (array_key_exists("href", $node) &&
-                preg_match("/.*Media\.aspx\/GetPhoto.*/", $node["href"]))
+            if (preg_match("/.*Media\.aspx\/GetPhoto.*/", $node["href"]))
             {
                 $picture_url = $this->base . $node["href"];
 
@@ -174,7 +179,8 @@ class PageParser
                     CURLOPT_POST => false,
                 );
                 $picture_data = Utils\curl_exec_opts($ch, $opts);
-                $picture = Attachment::from_array(array(
+                $picture = new Attachment();
+                $picture->from_array(array(
                     "Profile" => true,
                     "Content" => $picture_data,
                     "BodyLength" => count(unpack("C*", $picture_data)),
@@ -187,6 +193,7 @@ class PageParser
         }
 
         // Update the Child or SiblingGroup object with the attachments
+        $this->log->debug("Found " . count($attachments) . " total attachments");
         $this->data->set_value("Attachments", $attachments);
     }
 
