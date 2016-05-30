@@ -19,3 +19,12 @@ Run
 ---
 
 `php run.php`
+
+Troubleshooting
+---------------
+
+Accidentally delete config.yaml and config.yaml.dist?
+
+`php gen_new_config.php`
+
+This will regenerate config.yaml.dist
