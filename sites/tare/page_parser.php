@@ -47,9 +47,11 @@ class PageParser
      * @param string $base url of TARE site
      * @param string $url to initialize the PageParser
      * @param string $type of page to parse
+     * @param \Monolog\Handler\StreamHandler $logHandler log handler/dispatcher
      */
-    function __construct($base, $url, $type)
+    function __construct($base, $url, $type, $logHandler)
     {
+        // Scaffolding
         $this->base = $base;
         $this->url = $base . $url;
         $this->type = $type;
@@ -57,12 +59,16 @@ class PageParser
         if ($type == "Child")
         {
             $this->data = new Child();
-        } else if ($type == "SiblingGroup")
-        {
+            $this->log = new \Monolog\Logger("Child Page Parser");
+        } else if ($type == "SiblingGroup") {
             $this->data = new SiblingGroup();
+            $this->log = new \Monolog\Logger("SiblingGroup Page Parser");
         } else {
-            trigger_error(error_log("'$type' is not understood."));
+            $this->log = new \Monolog\Logger("!ERRER! Page Parser");
         }
+
+        $this->log->pushHandler($logHandler);
+        $this->log->info($url);
     }
 
     /**
@@ -81,7 +87,7 @@ class PageParser
             CURLOPT_POST => false,
         );
         $page_data = Utils\curl_exec_opts($ch, $opts);
-        $this->soup = \str_get_html($page_data);
+        $this->soup = \FluentDOM::QueryCss($page_data);
         curl_close($ch);
 
         // Using a try/catch paradigm, parse attachments,
@@ -90,21 +96,13 @@ class PageParser
         {
             $this->parse_attachments();
         } catch (Exception $e) {
-            trigger_error(
-                error_log(
-                    "Falide to parse Attachments for $this->url\n$e"
-                )
-            );
+            $this->log->error("Falide to parse Attachments for $this->url\n$e");
         }
         try
         {
             $this->parse_caseworker_info();
         } catch (Exception $e) {
-            trigger_error(
-                error_log(
-                    "Falide to parse CaseWorker for $this->url\n$e"
-                )
-            );
+            $this->log->error("Falide to parse CaseWorker for $this->url\n$e");
         }
     }
 
@@ -149,7 +147,7 @@ class PageParser
             // Add the profile picture to the list of attachments
             array_push($attachments, $profile_picture);
         } else {
-            error_log("No profile picture found for $this->url\n");
+            $this->log->error("No profile picture found for $this->url\n");
         }
 
         // Now to grab all other pictures
@@ -214,7 +212,7 @@ class PageParser
         {
             $selected = $this->soup->find($child_cw_selector);
         } else if ($this->type == "SiblingGroup") {
-            $selected = $this->soup-find($group_cw_selector);
+            $selected = $this->soup->find($group_cw_selector);
         }
     }
 

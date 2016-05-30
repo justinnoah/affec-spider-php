@@ -23,9 +23,10 @@
         }
     ],
     "require": {
+        "doctrine/orm": "2.5.*",
         "fluentdom/fluentdom": "5.3",
         "fluentdom/selectors-symfony": "1.0",
-        "doctrine/orm": "2.5.*",
+        "monolog/monolog": "1.19",
         "symfony/yaml": "2.*"
     },
     "license": "Apache 2.0",

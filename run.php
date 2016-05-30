@@ -21,9 +21,6 @@ if (version_compare(phpversion(), '7.0.0', '>='))
     declare(strict_types=1);
 }
 
-// STDLib includes
-use ErrorException;
-
 // Third Party includes
 include("vendor/autoload.php");
 use Symfony\Component\Yaml\Exception\ParseException;
@@ -34,7 +31,20 @@ require("crawler/utils.php");
 require("sites/tare/tare.php");
 use Crawler\Sites\Tare\TareSite;
 
-
+/**
+ * Short Desc
+ *
+ * Start a Logger
+ *
+ * @param string $logfile path to log file
+ */
+function setup_log_handler($logfile="./spider.log")
+{
+    $handler = new \Monolog\Handler\StreamHandler(
+        $logfile, \Monolog\Logger::DEBUG
+    );
+    return $handler;
+}
 
 /**
  * Short Desc
@@ -64,7 +74,10 @@ function load_config($config="./config.yaml")
  */
 function search_tare($cfg)
 {
-    $tare = new TareSite($cfg);
+    $logHandler = setup_log_handler();
+    $log = new \Monolog\Logger("Runner");
+    $tare = new TareSite($cfg, $logHandler);
+
     // $dot = Utils\string_dot(range("a", "z"), range("a", "z"));
     $dot = Utils\string_dot(range("a", "b"), range("a", "c"));
     foreach ($dot as $name)
@@ -76,11 +89,11 @@ function search_tare($cfg)
 try {
     if (!($config = load_config()))
     {
-        throw new ErrorException("Unable to continue without a proper config.");
+        throw new \ErrorException("Unable to continue without a proper config.");
     }
     search_tare($config["sites"]["tare"]);
-} catch (ErrorException $e) {
-    printf("%s\n", $e);
+} catch (\ErrorException $e) {
+    $log->critical($e);
 }
 
 /**

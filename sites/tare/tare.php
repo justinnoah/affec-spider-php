@@ -15,8 +15,6 @@
 
 namespace Crawler\Sites\Tare;
 
-use FluentDOM;
-
 use \Crawler\DataTypes;
 
 require("sites/tare/utils.php");
@@ -63,12 +61,22 @@ class TareSite
      * Login to TARE for session prep
      *
      * @param array $config user/pass for TARE
+     * @param \Monolog\Handler\StreamHandler $lHandler log handler/dispatcher
      */
-    function __construct($config)
+    function __construct($config, $lHandler)
     {
+        // Setup Logger
+        $this->logHandler = $lHandler;
+        $this->log = new \Monolog\Logger("TARE");
+        $this->log->pushHandler($lHandler);
+
+        // Log in to TARE
         $this->username = $config["username"];
         $this->password = $config["password"];
-        $this->login();
+        if (!$this->login())
+        {
+            throw new \ErrorException("Failed to Login");
+        }
     }
 
     /**
@@ -95,12 +103,16 @@ class TareSite
         $result = Utils\curl_exec_opts($ch, $opts);
         if (!$result)
         {
-            trigger_error((curl_error($ch)));
+            $this->log->critical("Failed to Login.");
+            $this->log->critical(curl_error($ch));
+            return false;
         } else if (!curl_getinfo($ch)["redirect_url"] == self::LOGINREDIRECT)
         {
-            exit("Fail");
+            $this->log->critical("Failed to Login. Check config.");
+            return false;
         }
         curl_close($ch);
+        return true;
     }
 
     /**
@@ -136,7 +148,7 @@ class TareSite
         $info = curl_getinfo($ch);
         if (!$result)
         {
-            trigger_error((curl_error($ch)));
+            $this->log->error(curl_error($ch));
         }
         curl_close($ch);
 
@@ -153,7 +165,7 @@ class TareSite
                 $soup->find("a")->get(),
                 function($node)
                 {
-                    $link = FluentDOM($node)->attr("href");
+                    $link = \FluentDOM($node)->attr("href");
                     if (preg_match("/.*Child\.aspx.*/", $link))
                     {
                         return true;
@@ -185,7 +197,8 @@ class TareSite
         foreach ($child_links as $clink)
         {
             $child_obj = new PageParser(
-                self::BASEURL, $clink, "Child"
+                self::BASEURL, $clink, "Child",
+                $this->logHandler
             );
             $child_obj->parse();
             break;
@@ -194,7 +207,8 @@ class TareSite
         foreach ($group_links as $glink)
         {
             $group_obj = new PageParser(
-                self::BASEURL, $glink, "SiblingGroup"
+                self::BASEURL, $glink, "SiblingGroup",
+                $this->logHandler
             );
             $group_obj->parse();
             break;
