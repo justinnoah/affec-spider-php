@@ -121,7 +121,7 @@ interface SpiderCommonInterface
      *
      * @return array
      */
-    function as_array();
+    function to_array();
 
     /**
      * Short Desc
@@ -132,7 +132,7 @@ interface SpiderCommonInterface
      *
      * @return mixed
      */
-     static function from_array(array $data);
+     function from_array(array $data);
 }
 
 /**
@@ -193,7 +193,7 @@ class DType implements SpiderCommonInterface
      *
      * @return array
      */
-    function as_array()
+    function to_array()
     {
         return $this->guarded_array;
     }
@@ -207,14 +207,12 @@ class DType implements SpiderCommonInterface
      *
      * @return Attachment
      */
-     static function from_array(array $data)
+     function from_array(array $data)
      {
-         $dt = new $this();
          foreach($data as $key => $value)
          {
-             $dt->set_value($key, $value);
+             $this->set_value($key, $value);
          }
-         return $dt;
      }
 
 }
