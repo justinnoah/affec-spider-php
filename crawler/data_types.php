@@ -77,6 +77,19 @@ define("ATTACHMENT_KEYS", serialize(array(
 /**
  * Short Desc
  *
+ * Valid CaseWorker Keys
+ */
+define("CASEWORKER_KEYS",serialize(array(
+    "Address",
+    "EmailAddress",
+    "Name",
+    "PhoneNumber",
+    "Region",
+)));
+
+/**
+ * Short Desc
+ *
  * Simple Guarenties for Common Objects
  */
 interface SpiderCommonInterface
@@ -124,7 +137,6 @@ interface SpiderCommonInterface
 
 /**
  * Short Desc
- *
  *
  * Attachment representation
  */
@@ -214,6 +226,98 @@ class Attachment implements SpiderCommonInterface
          return $att;
      }
 }
+
+/**
+ * Short Desc
+ *
+ * CaseWorker representation
+ */
+class CaseWorker implements SpiderCommonInterface
+{
+    /**
+     * Short Desc
+     *
+     * Initialize a CaseWorker object with an array
+     */
+    function __construct()
+    {
+        $this->allowed_keys = unserialize(CASEWORKER_KEYS);
+        $this->caseworker = array();
+    }
+
+    /**
+     * Short Desc
+     *
+     * Set a data point for a CaseWorker object
+     *
+     * @param string $slot is a valid data point for a caseworker
+     * @param mixed $data is the value to set for the slot
+     */
+    function set_value($slot, $data)
+    {
+        if (in_array($slot, $this->allowed_keys, true))
+        {
+            $this->caseworker[$slot] = $data;
+        } else {
+            trigger_error(error_log("Cannot use $slot in a CaseWorker object."));
+        }
+    }
+
+    /**
+     * Short Desc
+     *
+     * Get value from guarded array
+     *
+     * @param string $key to retrive value of
+     * @return mixed value
+     */
+     function get_value($key)
+     {
+         if (in_array($key, $this->allowed_keys))
+         {
+             if (in_array($key, array_keys($this->caseworker)))
+             {
+                 return $this->caseworker[$key];
+             } else {
+                 $this->caseworker[$key] = "";
+                 return $this->caseworker[$key];
+             }
+         } else {
+             trigger_error(error_log("$key is not a valid CaseWorker key"));
+         }
+     }
+
+    /**
+     * Short Desc
+     *
+     * Returns an Attachment as an unguarded array
+     *
+     * @return array
+     */
+    function as_array()
+    {
+        return $this->caseworker;
+    }
+
+    /**
+     * Short Desc
+     *
+     * Import an array as an CaseWorker
+     *
+     * @param array $data
+     *
+     * @return CaseWorker
+     */
+     static function from_array(array $data)
+     {
+         $att = new CaseWorker();
+         foreach($data as $key => $value)
+         {
+             $att->set_value($key, $value);
+         }
+         return $att;
+     }
+ }
 
 /**
  * Short Desc
