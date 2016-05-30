@@ -21,7 +21,7 @@ namespace Crawler\DataTypes;
  *
  * Child specific keys
  */
-$children_keys = array(
+define("CHILDREN_KEYS", serialize(array(
     "Age",
     "AdoptionRecruitment",
     "BulletinDate",
@@ -32,23 +32,23 @@ $children_keys = array(
     "PrimaryLanguage",
     "Race",
     "Siblings",
-);
+)));
 
 /**
  * Short Desc
  *
  * SiblingGroup specific keys
  */
-$sibling_group_keys = array(
+define("SIBLING_GROUP_KEYS", serialize(array(
     "siblings",
-);
+)));
 
 /**
  * Short Desc
  *
  * Commone keys for Child and SiblingGroup objects
  */
-$common_keys = array(
+define("COMMON_KEYS", serialize(array(
     "Attachments",
     "Biography",
     "CaseNumber",
@@ -60,19 +60,19 @@ $common_keys = array(
     "PageURL",
     "Region",
     "State",
-);
+)));
 
 /**
  * Short Desc
  *
  * Valid Attachment Keys
  */
-$attachment_keys = array(
+define("ATTACHMENT_KEYS", serialize(array(
     "Content",
     "ContentType",
     "Profile",
     "BodyLength",
-);
+)));
 
 /**
  * Short Desc
@@ -89,7 +89,7 @@ interface SpiderCommonInterface
      * @param string $key array key
      * @param mixed $value array value
      */
-    function set_value(string $key, mixed $value);
+    function set_value($key, $value);
 
     /**
      * Short Desc
@@ -125,8 +125,9 @@ class Attachment implements SpiderCommonInterface
      *
      * Initialize an Attachment object with an array
      */
-    function __constructor()
+    function __construct()
     {
+        $this->allowed_keys = unserialize(ATTACHMENT_KEYS);
         $this->attachment = array();
     }
 
@@ -138,9 +139,9 @@ class Attachment implements SpiderCommonInterface
      * @param string $slot is a valid data point for an attechment
      * @param mixed $data is the value to set for the slot
      */
-    function set_value(string $slot, mixed $data)
+    function set_value($slot, $data)
     {
-        if (in_array($slot, $attachment_keys, true))
+        if (in_array($slot, $this->allowed_keys, true))
         {
             $this->child[$slot] = $data;
         } else {
@@ -192,8 +193,9 @@ class SiblingGroup implements SpiderCommonInterface
      *
      * Initialize a SiblingGroup object with an array
      */
-    function __constructor()
+    function __construct()
     {
+        $this->allowed_keys = unserialize(SIBLING_GROUP_KEYS) + unserialize(COMMON_KEYS);
         $this->sgroup = array();
     }
 
@@ -205,7 +207,7 @@ class SiblingGroup implements SpiderCommonInterface
      * @param string $slot is a valid data point for a sibling group
      * @param mixed $data is the value to set for the slot
      */
-    function set_value(string $slot, mixed $data)
+    function set_value($slot, $data)
     {
         if (in_array($slot, $sibling_group_keys + $common_keys, true))
         {
@@ -259,8 +261,9 @@ class Child implements SpiderCommonInterface
      *
      * Initialize a Child object with a child array
      */
-    function __constructor()
+    function __construct()
     {
+        $this->allowed_keys = unserialize(CHILDREN_KEYS) + unserialize(COMMON_KEYS);
         $this->child = array();
     }
 
@@ -272,7 +275,7 @@ class Child implements SpiderCommonInterface
      * @param string $slot is a valid data point for a Child
      * @param mixed $data is the value to set for the slot
      */
-    function set_value(string $slot, mixed $data)
+    function set_value($slot, $data)
     {
         if (in_array($slot, $child_keys + $common_keys, true))
         {
@@ -329,7 +332,7 @@ class AllChildren
      * @param array $children list of Child objects to initilize with
      * @param array $sibling_groups list of SiblingGroup objects to initilize with
      */
-    function __constructor(array $children=array(), array $sibling_groups=array())
+    function __construct(array $children=array(), array $sibling_groups=array())
     {
         // Guarantee each element of the Array is a Child object.
         foreach ($children as $child)
