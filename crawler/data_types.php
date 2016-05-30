@@ -94,6 +94,16 @@ interface SpiderCommonInterface
     /**
      * Short Desc
      *
+     * Get value from guarded array
+     *
+     * @param string $key to retrive value of
+     * @return mixed value
+     */
+     function get_value($key);
+
+    /**
+     * Short Desc
+     *
      * Return the guarded array
      *
      * @return array
@@ -143,11 +153,35 @@ class Attachment implements SpiderCommonInterface
     {
         if (in_array($slot, $this->allowed_keys, true))
         {
-            $this->child[$slot] = $data;
+            $this->attachment[$slot] = $data;
         } else {
             trigger_error(error_log("Cannot use $slot in an Attachment object."));
         }
     }
+
+    /**
+     * Short Desc
+     *
+     * Get value from guarded array
+     *
+     * @param string $key to retrive value of
+     * @return mixed value
+     */
+     function get_value($key)
+     {
+         if (in_array($key, $this->allowed_keys))
+         {
+             if (in_array($key, array_keys($this->attachment)))
+             {
+                 return $this->attachment[$key];
+             } else {
+                 $this->attachment[$key] = "";
+                 return $this->attachment[$key];
+             }
+         } else {
+             trigger_error(error_log("$key is not a valid Attachment key"));
+         }
+     }
 
     /**
      * Short Desc
@@ -195,7 +229,9 @@ class SiblingGroup implements SpiderCommonInterface
      */
     function __construct()
     {
-        $this->allowed_keys = unserialize(SIBLING_GROUP_KEYS) + unserialize(COMMON_KEYS);
+        $this->allowed_keys = array_merge(
+            unserialize(SIBLING_GROUP_KEYS), unserialize(COMMON_KEYS)
+        );
         $this->sgroup = array();
     }
 
@@ -209,13 +245,38 @@ class SiblingGroup implements SpiderCommonInterface
      */
     function set_value($slot, $data)
     {
-        if (in_array($slot, $sibling_group_keys + $common_keys, true))
+        if (in_array($slot, $this->allowed_keys, true))
         {
             $this->sgroup[$slot] = $data;
         } else {
             trigger_error(error_log("Cannot use $slot in a SiblingGroup object."));
         }
     }
+
+    /**
+     * Short Desc
+     *
+     * Get value from guarded array
+     *
+     * @param string $key to retrive value of
+     * @return mixed value
+     */
+     function get_value($key)
+     {
+         if (in_array($key, $this->allowed_keys))
+         {
+             if (in_array($key, array_keys($this->sgroup)))
+             {
+                 return $this->sgroup[$key];
+             } else {
+                 $this->sgroup[$key] = "";
+                 return $this->sgroup[$key];
+             }
+         } else {
+             trigger_error(error_log("$key is not a valid SiblingGroup key"));
+         }
+     }
+
 
     /**
      * Short Desc
@@ -263,7 +324,9 @@ class Child implements SpiderCommonInterface
      */
     function __construct()
     {
-        $this->allowed_keys = unserialize(CHILDREN_KEYS) + unserialize(COMMON_KEYS);
+        $this->allowed_keys = array_merge(
+            unserialize(CHILDREN_KEYS), unserialize(COMMON_KEYS)
+        );
         $this->child = array();
     }
 
@@ -277,13 +340,38 @@ class Child implements SpiderCommonInterface
      */
     function set_value($slot, $data)
     {
-        if (in_array($slot, $child_keys + $common_keys, true))
+        if (in_array($slot, $this->allowed_keys, true))
         {
             $this->child[$slot] = $data;
         } else {
             trigger_error(error_log("Cannot use $slot in a Child object."));
         }
     }
+
+    /**
+     * Short Desc
+     *
+     * Get value from guarded array
+     *
+     * @param string $key to retrive value of
+     * @return mixed value
+     */
+     function get_value($key)
+     {
+         if (in_array($key, $this->allowed_keys))
+         {
+             if (in_array($key, array_keys($this->child)))
+             {
+                 return $this->child[$key];
+             } else {
+                 $this->child[$key] = "";
+                 return $this->child[$key];
+             }
+         } else {
+             trigger_error(error_log("$key is not a valid Child key"));
+         }
+     }
+
 
     /**
      * Short Desc
