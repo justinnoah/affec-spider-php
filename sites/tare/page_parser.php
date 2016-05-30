@@ -53,7 +53,7 @@ class PageParser
     {
         // Scaffolding
         $this->base = $base;
-        $this->url = $base . $url;
+        $this->url = $url;
         $this->type = $type;
 
         if ($type == "Child")
@@ -96,13 +96,15 @@ class PageParser
         {
             $this->parse_attachments();
         } catch (Exception $e) {
-            $this->log->error("Falide to parse Attachments for $this->url\n$e");
+            $this->log->error("Falied to parse Attachments for $this->url");
+            $this->log->error($e);
         }
         try
         {
             $this->parse_caseworker_info();
         } catch (Exception $e) {
-            $this->log->error("Falide to parse CaseWorker for $this->url\n$e");
+            $this->log->error("Falied to parse CaseWorker for $this->url");
+            $this->log->error($e);
         }
 
         // Return the parsed object
@@ -116,6 +118,7 @@ class PageParser
      */
     function parse_attachments()
     {
+        $this->log->debug("Begin parsing attachments...");
         $selectors = unserialize(ATTACHMENT_SELECTORS);
         // $this->data->set_value("Attachments", array())
         $attachments = array();
@@ -127,7 +130,7 @@ class PageParser
         $profile_picture_url = false;
         if (preg_match("/.*Media\.aspx\/GetPhoto.*/", $node["href"]))
         {
-            $profile_picture_url = $this->base . $node["href"];
+            $profile_picture_url = $node["href"];
         }
 
         // Download Picture data and create an attachment for it
