@@ -15,6 +15,8 @@
 
 namespace Crawler\Sites\Tare;
 
+use FluentDOM;
+
 use \Crawler\DataTypes;
 
 require("sites/tare/utils.php");
@@ -139,36 +141,51 @@ class TareSite
         curl_close($ch);
 
         // Parse results for links
-        $soup = new \simple_html_dom($result, $lower=true);
-        $links = $soup->find("a");
+        $soup = \FluentDOM::QueryCss($result, "text/html");
 
         // Specifically Child links
-        $child_links = array_filter($links, function($link) {
-            if (array_key_exists("href", $link->attr) &&
-                preg_match("/.*Child\.aspx.*/", $link->attr["href"], $res))
+        $child_links = array_map(
+            function($x)
             {
-                return $res[0];
-            }
-            return false;
-        });
+                return self::BASEURL . $x["href"];
+            },
+            array_filter(
+                $soup->find("a")->get(),
+                function($node)
+                {
+                    $link = FluentDOM($node)->attr("href");
+                    if (preg_match("/.*Child\.aspx.*/", $link))
+                    {
+                        return true;
+                    }
+                    return false;
+                })
+        );
 
         // Specifically Sibling Group links
-        $group_links = array_filter($links, function($link) {
-            if (array_key_exists("href", $link->attr) &&
-                preg_match("/.*Group\.aspx.*/", $link->attr["href"], $res))
+        $group_links = array_map(
+            function($x)
             {
-                return $res[0];
-            }
-            return false;
-        });
+                return self::BASEURL . $x["href"];
+            },
+            array_filter(
+                $soup->find("a")->get(),
+                function($node)
+                {
+                    $link = FluentDOM($node)->attr("href");
+                    if (preg_match("/.*Group\.aspx.*/", $link))
+                    {
+                        return true;
+                    }
+                    return false;
+                })
+        );
 
         // Parse child pages for details to import
         foreach ($child_links as $clink)
         {
-            $child_url = self::BASEURL . $clink->attr["href"];
-            printf("URL: %s\n", $child_url);
             $child_obj = new PageParser(
-                self::BASEURL, $clink->attr["href"], "Child"
+                self::BASEURL, $clink, "Child"
             );
             $child_obj->parse();
             break;
@@ -176,12 +193,11 @@ class TareSite
         // Parse group pages for details to import
         foreach ($group_links as $glink)
         {
-            $group_url = self::BASEURL . $glink->attr["href"];
-            printf("URL: %s\n", $group_url);
             $group_obj = new PageParser(
-                self::BASEURL, $glink->attr["href"], "SiblingGroup"
+                self::BASEURL, $glink, "SiblingGroup"
             );
             $group_obj->parse();
+            break;
         }
     }
 }

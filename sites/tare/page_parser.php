@@ -24,14 +24,12 @@ use \Crawler\DataTypes\SiblingGroup;
 use \Crawler\Sites\Tare\Utils;
 use \Crawler\DataTypes\Attachment;
 
-define("ALL_SIBLINGS_SELECTOR", "div[id=pageContent] > div:0 > div[class=galleryImage]");
-define("CHILD_CASE_NUMBER", "div[id=pageContent] > div:0 > div:0 > div:2 > span:0");
+define("ALL_SIBLINGS_SELECTOR", "div#pageContent > div > div.galleryImage");
+define("CHILD_CASE_NUMBER", "div#pageContent > div > div > div:nth-child(2) > span");
 
 define("ATTACHMENT_SELECTORS", serialize(array(
-    "profile_picture" => "
-        div[id=#Information] > div[class=galleryImage] > a[class=imageLightbox]
-    ",
-    "other_pictures" => "div[id=contentGallery] > a[class=imageLightbox]"
+    "profile_picture" => "div##Information > div.galleryImage > a.imageLightbox",
+    "other_pictures" => "div#contentGallery > a.imageLightbox"
 )));
 
 /**
@@ -54,6 +52,8 @@ class PageParser
     {
         $this->base = $base;
         $this->url = $base . $url;
+        $this->type = $type;
+
         if ($type == "Child")
         {
             $this->data = new Child();
@@ -96,52 +96,16 @@ class PageParser
                 )
             );
         }
-    }
-
-    /**
-     * Short Desc
-     *
-     * Properly traverse CSS selector path
-     *
-     * Long Desc
-     *
-     * Have simple_html_dom css selction behave a more like python's
-     * BeautifulSoup css selection. The ">" character denotes going down a
-     * level in the CSS tree which simple_html_dom does not seem to understand
-     *
-     * @param \simple_html_dom $soup soup to traverse
-     * @param string $css_path path to follow
-     *
-     * @return \simple_html_dom_node
-     */
-    function css_traverse(\simple_html_dom $soup, $css_path)
-    {
-        // Explode on ">" to go deeper in the css tree
-        $css_split_path = explode(
-            " > ", $css_path
-        );
-
-        // Start at the $soup level
-        $node = $soup;
-
-        // Move down the tree/path
-        foreach ($css_split_path as $path)
+        try
         {
-            // Use ":" as a delimiter for a child index
-            $path_burst = explode(":", $path);
-
-            // If the ":" delimiter was used, select appropriately
-            if (count($path_burst) > 1)
-            {
-                $node = $node->find($path_burst[0], $path_burst[1]);
-            // else do as normal
-            } else {
-                $node = $node->find($path)[0];
-            }
+            $this->parse_caseworker_info();
+        } catch (Exception $e) {
+            trigger_error(
+                error_log(
+                    "Falide to parse CaseWorker for $this->url\n$e"
+                )
+            );
         }
-
-        // Return the final selected node
-        return $node;
     }
 
     /**
@@ -151,70 +115,71 @@ class PageParser
      */
     function parse_attachments()
     {
+        $selectors = unserialize(ATTACHMENT_SELECTORS);
         // $this->data->set_value("Attachments", array())
         $attachments = array();
 
         // Find Profile Picture node
-        $node = $this->css_traverse(
-            $this->soup, unserialize(ATTACHMENT_SELECTORS)["profile_picture"]
-        );
+        $node = $this->soup->first($selectors["profile_picture"]);
 
         // Safely grab the picture url if possible
-        $profile_picture_url = "";
-        if (array_key_exists("href", $node->attr) &&
-            preg_match("/.*Media\.aspx\/GetPhoto.*/", $node->attr["href"], $res))
+        $profile_picture_url = false;
+        if (preg_match("/.*Media\.aspx\/GetPhoto.*/", $node["href"]))
         {
-            $profile_picture_url = $this->base . $node->attr["href"];
+            $profile_picture_url = $this->base . $node["href"];
         }
 
         // Download Picture data and create an attachment for it
-        $ch = curl_init();
-        $opts = array(
-            CURLOPT_URL => $profile_picture_url,
-            CURLOPT_POST => false,
-        );
-        $profile_picture_data = Utils\curl_exec_opts($ch, $opts);
-        $profile_picture = Attachment::from_array(array(
-            "Profile" => true,
-            "Content" => $profile_picture_data,
-            // This works for BodyLength, or curl_getinfo($ch)['download_content_length']
-            "BodyLength" => count(unpack("C*", $profile_picture_data)),
-        ));
-        curl_close($ch);
+        if ($profile_picture_url)
+        {
+            $ch = curl_init();
+            $opts = array(
+                CURLOPT_URL => $profile_picture_url,
+                CURLOPT_POST => false,
+            );
+            $profile_picture_data = Utils\curl_exec_opts($ch, $opts);
+            $profile_picture = Attachment::from_array(array(
+                "Profile" => true,
+                "Content" => $profile_picture_data,
+                // This works for BodyLength, or curl_getinfo($ch)['download_content_length']
+                "BodyLength" => count(unpack("C*", $profile_picture_data)),
+            ));
+            curl_close($ch);
 
-        // Add the profile picture to the list of attachments
-        array_push($attachments, $profile_picture);
+            // Add the profile picture to the list of attachments
+            array_push($attachments, $profile_picture);
+        } else {
+            error_log("No profile picture found for $this->url\n");
+        }
 
         // Now to grab all other pictures
-        $nodes = $this->soup->find(
-            unserialize(ATTACHMENT_SELECTORS)["other_pictures"]
-        );
+        $nodes = $this->soup->find($selectors["other_pictures"]);
         $picture_url = "";
         foreach ($nodes as $node)
         {
             // Safely grab the picture url if possible
-            if (array_key_exists("href", $node->attr) &&
-                preg_match("/.*Media\.aspx\/GetPhoto.*/", $node->attr["href"], $res))
+            if (array_key_exists("href", $node) &&
+                preg_match("/.*Media\.aspx\/GetPhoto.*/", $node["href"]))
             {
-                $picture_url = $this->base . $node->attr["href"];
+                $picture_url = $this->base . $node["href"];
+
+                // Download Picture data and create an attachment for it
+                $ch = curl_init();
+                $opts = array(
+                    CURLOPT_URL => $picture_url,
+                    CURLOPT_POST => false,
+                );
+                $picture_data = Utils\curl_exec_opts($ch, $opts);
+                $picture = Attachment::from_array(array(
+                    "Profile" => true,
+                    "Content" => $picture_data,
+                    "BodyLength" => count(unpack("C*", $picture_data)),
+                ));
+                curl_close($ch);
+
+                // Add new photo to attachment list
+                array_push($attachments, $picture);
             }
-
-            // Download Picture data and create an attachment for it
-            $ch = curl_init();
-            $opts = array(
-                CURLOPT_URL => $picture_url,
-                CURLOPT_POST => false,
-            );
-            $picture_data = Utils\curl_exec_opts($ch, $opts);
-            $picture = Attachment::from_array(array(
-                "Profile" => true,
-                "Content" => $picture_data,
-                "BodyLength" => count(unpack("C*", $picture_data)),
-            ));
-            curl_close($ch);
-
-            // Add new photo to attachment list
-            array_push($attachments, $picture);
         }
 
         // Update the Child or SiblingGroup object with the attachments
