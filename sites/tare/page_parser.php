@@ -13,6 +13,13 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
+namespace Crawler\Sites\Tare\PageParse;
+
+require("crawler/data_types.php");
+use \Crawler\DataTypes\Child;
+use \Crawler\DataTypes\AllChildren;
+use \Crawler\DataTypes\SiblingGroup;
+
 /**
  * Short Desc
  *
@@ -20,6 +27,29 @@
  */
 class PageParser
 {
+    /**
+     * Short Desc
+     *
+     * Construct a PageParser initialized with $url
+     *
+     * @param string $base url of TARE site
+     * @param string $url to initialize the PageParser
+     * @param string $type of page to parse
+     */
+    function __construct($base, $url, $type)
+    {
+        $this->base = $base;
+        $this->url = $base . $url;
+        if ($type == "Child")
+        {
+            $this->data = new Child();
+        } else if ($type == "SiblingGroup")
+        {
+            $this->data = new SiblingGroup();
+        } else {
+            trigger_error(error_log("'$type' is not understood."));
+        }
+    }
 
     /**
      * Short Desc
