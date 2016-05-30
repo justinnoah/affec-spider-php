@@ -19,6 +19,9 @@ use \Crawler\DataTypes;
 
 require("sites/tare/utils.php");
 
+require("page_parser.php");
+use \Crawler\Sites\Tare\PageParse\PageParser;
+
 /**
  * Long Desc
  *
@@ -72,6 +75,8 @@ class TareSite
         if (!$result)
         {
             trigger_error((curl_error($ch)));
+        } else {
+            printf("Logged In!\n");
         }
         curl_close($ch);
     }
@@ -136,6 +141,16 @@ class TareSite
             }
             return false;
         });
+        foreach ($child_links as $clink)
+        {
+            $child_url = self::BASEURL . $clink->attr["href"];
+            printf("URL: %s\n", $child_url);
+            $child_obj = new PageParser(
+                self::BASEURL, $clink->attr["href"], "Child"
+            );
+            $child_obj->parse();
+            break;
+        }
 
         // Specifically Sibling Group links
         $group_links = array_filter($links, function($link) {
