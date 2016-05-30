@@ -193,6 +193,29 @@ class PageParser
      */
     function parse_caseworker_info()
     {
+        // TARE to crawler Key map
+        $caseworker_tare_map = array(
+            "Address" => "Address",
+            "Email" => "Email",
+            "Email Address" => "Email",
+            "Name" => "Name",
+            "Phone" => "PhoneNumber",
+            "Phone Number" => "PhoneNumber",
+            "Region" => "Region",
+            "TARE Coordinator" => "Name",
+        );
+
+        // CSS Selectors for CaseWorkers
+
+        $child_cw_selector = "fieldset > div";
+        $group_cw_selector = "span[text='TARE Coordinator']";
+
+        if ($this->type == "Child")
+        {
+            $selected = $this->soup->find($child_cw_selector);
+        } else if ($this->type == "SiblingGroup") {
+            $selected = $this->soup-find($group_cw_selector);
+        }
     }
 
     /**
