@@ -40,10 +40,12 @@ use Crawler\Sites\Tare\TareSite;
  * Short Desc
  *
  * Load config
+ *
+ * @param string $config config yaml
  */
-function load_config()
+function load_config($config="./config.yaml")
 {
-    $file  = file_get_contents("./config.yaml");
+    $file  = file_get_contents($config);
     try {
         $config = Yaml::parse($file);
     } catch (ParseException $e) {
@@ -80,3 +82,16 @@ try {
 } catch (ErrorException $e) {
     printf("%s\n", $e);
 }
+
+/**
+ * Short Desc
+ *
+ * Put it all together
+ */
+function main()
+{
+    $cfg = load_config();
+    search_tare($cfg);
+}
+
+main();
