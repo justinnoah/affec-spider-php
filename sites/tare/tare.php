@@ -91,7 +91,7 @@ class TareSite
             "UserName" => $this->username,
             "Password" => $this->password,
         );
-        printf("Login URL: %s\n", self::LOGINURL);
+        $this->log->info("Login URL: " . self::LOGINURL);
         $opts = array(
             CURLOPT_URL => self::LOGINURL,
             CURLOPT_POST => true,

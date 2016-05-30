@@ -104,7 +104,7 @@ try {
 function main()
 {
     $cfg = load_config();
-    search_tare($cfg);
+    search_tare($cfg["sites"]["tare"]);
 }
 
 main();
