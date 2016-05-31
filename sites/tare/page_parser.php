@@ -49,11 +49,16 @@ class PageParser
     function __construct($base, $url, $type, $logHandler, $session)
     {
         // Scaffolding
+        // Tare baseurl
         $this->base = $base;
+        // path
         $this->url = $url;
+        // Child or SiblingGroup
         $this->type = $type;
+        // Curl Session passed in by TareSite
         $this->session = $session;
 
+        // Object creation and logger setup
         if ($type == "Child")
         {
             $this->data = new Child();
@@ -64,8 +69,9 @@ class PageParser
         } else {
             $this->log = new \Monolog\Logger("!ERRER! Page Parser");
         }
-
         $this->log->pushHandler($logHandler);
+
+        // Yay, log things
         $this->log->info($url);
     }
 
@@ -205,7 +211,7 @@ class PageParser
 
         // CSS Selectors for CaseWorkers
         $child_cw_selector = "fieldset div";
-        $group_cw_selector = "span[text='TARE Coordinator']";
+        $group_cw_selector = "div#pageContent div:nth-child(1) div:nth-child(6) div";
 
         if ($this->type == "Child")
         {
@@ -213,7 +219,7 @@ class PageParser
             $cw_selected = $this->soup->querySelectorAll($child_cw_selector);
         } else if ($this->type == "SiblingGroup") {
             // SiblingGroup page specific casworker query
-            $cw_selected = $this->soup->find($group_cw_selector);
+            $cw_selected = $this->soup->querySelectorAll($group_cw_selector);
         }
 
         // CaseWorker data
@@ -225,15 +231,16 @@ class PageParser
          * Add data to $caseworker_data if necessary
          *
          * @param array $store caseworker_data
+         * @param array $keys caseworker_tare_keys
          * @param \DOMElement $current current element
          * @param \DOMElement $next next element
          */
-        $get_data = function(&$store, $current, $next)
+        $get_data = function(&$store, &$keys, $current, $next)
         {
             // Grab the text of the nodes
             $current = trim($current->textContent);
             $next = trim($next->textContent);
-            if (in_array($current, $caseworker_tare_keys))
+            if (in_array($current, $keys))
             {
                 // Apply new data
                 $store[$current] = $next;
@@ -254,14 +261,14 @@ class PageParser
                 {
                     // Check for and possibly add new data
                     $get_data(
-                        $caseworker_data,
+                        $caseworker_data, $caseworker_tare_keys,
                         $inner->item($j), $inner->item($j + 1)
                     );
                 }
             } else {
                 // Check for and possibly add new data
                 $get_data(
-                    $caseworker_data,
+                    $caseworker_data, $caseworker_tare_keys,
                     $cw_selected->item($i), $cw_selected->item($i + 1)
                 );
             }
