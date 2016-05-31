@@ -25,14 +25,10 @@ use \Crawler\Sites\Tare\PageParse\PageParser;
 use Crawler\DataTypes\AllChildren;
 
 /**
- * Long Desc
+ * TARE Site management
  *
  * The encapsulated nature of Tare wrapped in a class. This handles logging in,
  * searching, firing off page parsing jobs, and manages the entire session.
- *
- * Short Desc
- *
- * TARE Site management
  */
 class TareSite
 {
@@ -58,8 +54,6 @@ class TareSite
     const LOGINREDIRECT = "https://www.dfps.state.tx.us/Application/TARE/Search.aspx/Children";
 
     /**
-     * Short Desc
-     *
      * Login to TARE for session prep
      *
      * @param array $config user/pass for TARE
@@ -82,8 +76,6 @@ class TareSite
     }
 
     /**
-     * Short Desc
-     *
      * Login to Tare
      */
     function login()

@@ -16,8 +16,6 @@
 namespace Crawler\Utils;
 
 /**
- * Short Desc
- *
  * Dot product of arrays
  *
  * @param array $outer characters in outer loop

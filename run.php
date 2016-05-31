@@ -32,8 +32,6 @@ require("sites/tare/tare.php");
 use Crawler\Sites\Tare\TareSite;
 
 /**
- * Short Desc
- *
  * Start a Logger
  *
  * @param string $logfile path to log file
@@ -47,8 +45,6 @@ function setup_log_handler($logfile="./spider.log")
 }
 
 /**
- * Short Desc
- *
  * Load config
  *
  * @param string $config config yaml
@@ -66,8 +62,6 @@ function load_config($config="./config.yaml")
 }
 
 /**
- * Short Desc
- *
  * Begin Search
  *
  * @param array $cfg Tare Config
@@ -87,8 +81,6 @@ function search_tare($cfg)
 }
 
 /**
- * Short Desc
- *
  * Put it all together
  */
 function main()

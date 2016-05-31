@@ -33,15 +33,11 @@ define("ATTACHMENT_SELECTORS", serialize(array(
 )));
 
 /**
- * Short Desc
- *
  * Child and Sibling Page Parser for TARE
  */
 class PageParser
 {
     /**
-     * Short Desc
-     *
      * Construct a PageParser initialized with $url
      *
      * @param string $base url of TARE site
@@ -72,8 +68,6 @@ class PageParser
     }
 
     /**
-     * Short Desc
-     *
      * Parse all data needed from a child or sibling page
      *
      * @return AllChildren containing a Child or SiblingGroup object
@@ -113,8 +107,6 @@ class PageParser
     }
 
     /**
-     * Short Desc
-     *
      * Parse Attachments for Child and Sibling Groups
      */
     function parse_attachments()
@@ -198,8 +190,6 @@ class PageParser
     }
 
     /**
-     * Short Desc
-     *
      * Porse Caseworker Data and add it to the Child/Sibling object
      */
     function parse_caseworker_info()
@@ -230,8 +220,6 @@ class PageParser
     }
 
     /**
-    * Short Desc
-    *
     * Parse child data from Child.aspx pages
     */
     function parse_child_info()
@@ -239,8 +227,6 @@ class PageParser
     }
 
     /**
-     * Short Desc
-     *
      * Grab children from sibling group and parse them
      */
     function parse_children_in_group()
@@ -248,8 +234,6 @@ class PageParser
     }
 
     /**
-     * Short Desc
-     *
      * Parse sibling group data from Group.aspx  pages
      */
     function parse_sibling_info()
@@ -257,8 +241,6 @@ class PageParser
     }
 
     /**
-     * Short Desc
-     *
      * Identify which type of page to parse
      */
     function parse_info()

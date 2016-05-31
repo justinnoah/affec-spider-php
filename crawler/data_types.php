@@ -17,8 +17,6 @@ namespace Crawler\DataTypes;
 
 
 /**
- * Short Desc
- *
  * Child specific keys
  */
 define("CHILDREN_KEYS", serialize(array(
@@ -35,8 +33,6 @@ define("CHILDREN_KEYS", serialize(array(
 )));
 
 /**
- * Short Desc
- *
  * SiblingGroup specific keys
  */
 define("SIBLING_GROUP_KEYS", serialize(array(
@@ -44,8 +40,6 @@ define("SIBLING_GROUP_KEYS", serialize(array(
 )));
 
 /**
- * Short Desc
- *
  * Commone keys for Child and SiblingGroup objects
  */
 define("COMMON_KEYS", serialize(array(
@@ -63,8 +57,6 @@ define("COMMON_KEYS", serialize(array(
 )));
 
 /**
- * Short Desc
- *
  * Valid Attachment Keys
  */
 define("ATTACHMENT_KEYS", serialize(array(
@@ -75,8 +67,6 @@ define("ATTACHMENT_KEYS", serialize(array(
 )));
 
 /**
- * Short Desc
- *
  * Valid CaseWorker Keys
  */
 define("CASEWORKER_KEYS",serialize(array(
@@ -88,15 +78,11 @@ define("CASEWORKER_KEYS",serialize(array(
 )));
 
 /**
- * Short Desc
- *
  * Simple Guarenties for Common Objects
  */
 interface SpiderCommonInterface
 {
     /**
-     * Short Desc
-     *
      * Set a Value for a given Key
      *
      * @param string $key array key
@@ -105,8 +91,6 @@ interface SpiderCommonInterface
     function set_value($key, $value);
 
     /**
-     * Short Desc
-     *
      * Get value from guarded array
      *
      * @param string $key to retrive value of
@@ -115,8 +99,6 @@ interface SpiderCommonInterface
      function get_value($key);
 
     /**
-     * Short Desc
-     *
      * Return the guarded array
      *
      * @return array
@@ -124,8 +106,6 @@ interface SpiderCommonInterface
     function to_array();
 
     /**
-     * Short Desc
-     *
      * Import an array as an object
      *
      * @param array $data
@@ -136,15 +116,11 @@ interface SpiderCommonInterface
 }
 
 /**
- * Short Desc
- *
  * Base class with common methods for the majority of the DataTypes
  */
 class DType implements SpiderCommonInterface
 {
     /**
-     * Short Desc
-     *
      * Set a data point forAthe guarded array
      *
      * @param string $slot is a valid key for the guarded array
@@ -162,8 +138,6 @@ class DType implements SpiderCommonInterface
     }
 
     /**
-     * Short Desc
-     *
      * Get value from guarded array
      *
      * @param string $key of guarded array
@@ -187,8 +161,6 @@ class DType implements SpiderCommonInterface
      }
 
     /**
-     * Short Desc
-     *
      * Returns an Attachment as an unguarded array
      *
      * @return array
@@ -199,8 +171,6 @@ class DType implements SpiderCommonInterface
     }
 
     /**
-     * Short Desc
-     *
      * Import an array as an Attachment
      *
      * @param array $data
@@ -218,15 +188,11 @@ class DType implements SpiderCommonInterface
 }
 
 /**
- * Short Desc
- *
  * Attachment representation
  */
 class Attachment extends DType
 {
     /**
-     * Short Desc
-     *
      * Initialize an Attachment object with an array
      */
     function __construct()
@@ -238,15 +204,11 @@ class Attachment extends DType
 }
 
 /**
- * Short Desc
- *
  * CaseWorker representation
  */
 class CaseWorker extends DType
 {
     /**
-     * Short Desc
-     *
      * Initialize a CaseWorker object with an array
      */
     function __construct()
@@ -257,15 +219,11 @@ class CaseWorker extends DType
 }
 
 /**
- * Short Desc
- *
  * Sibling Group representation
  */
 class SiblingGroup extends DType
 {
     /**
-     * Short Desc
-     *
      * Initialize a SiblingGroup object with an array
      */
     function __construct()
@@ -278,15 +236,11 @@ class SiblingGroup extends DType
 }
 
 /**
- * Short Desc
- *
  * Child representation
  */
 class Child extends DType
 {
     /**
-     * Short Desc
-     *
      * Initialize a Child object with a child array
      */
     function __construct()
@@ -299,15 +253,11 @@ class Child extends DType
 }
 
 /**
- * Short Desc
- *
  * Object containing Children and SiblingGroup Objects
  */
 class AllChildren
 {
     /**
-     * Short Desc
-     *
      * Initialize an AllChildren object with Child and SiblingGroup arrays
      *
      * @param array $children list of Child objects to initilize with
@@ -339,8 +289,6 @@ class AllChildren
     }
 
     /**
-     * Short Desc
-     *
      * Retrieve the list of Child objects
      *
      * @return array containing Child objects
@@ -351,8 +299,6 @@ class AllChildren
     }
 
     /**
-     * Short Desc
-     *
      * Add a Child to the list of children
      *
      * @param Child $child Child being added
@@ -369,8 +315,6 @@ class AllChildren
     }
 
     /**
-     * Short Desc
-     *
      * Retrieve the list of SiblingGroup objects
      *
      * @return array containing SiblingGroup objects
@@ -381,8 +325,6 @@ class AllChildren
      }
 
     /**
-     * Short Desc
-     *
      * Add a SiblingGroup to the list of groups
      *
      * @param SiblingGroup $group Group being added
@@ -398,8 +340,6 @@ class AllChildren
     }
 
     /**
-     * Short Desc
-     *
      * Determine wither the AllChildren object is empty
      *
      * @return bool of whether or not the lists are empty
@@ -417,8 +357,6 @@ class AllChildren
     }
 
     /**
-     * Short Desc
-     *
      * Merge an AllChildren into this one
      *
      * @param AllChildren $other AllChildren to merge
