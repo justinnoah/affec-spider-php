@@ -201,18 +201,74 @@ class PageParser
             "Region" => "Region",
             "TARE Coordinator" => "Name",
         );
+        $caseworker_tare_keys = array_keys($caseworker_tare_map);
 
         // CSS Selectors for CaseWorkers
-
-        $child_cw_selector = "fieldset > div";
+        $child_cw_selector = "fieldset div";
         $group_cw_selector = "span[text='TARE Coordinator']";
 
         if ($this->type == "Child")
         {
-            $selected = $this->soup->find($child_cw_selector);
+            // Child page specific casworker query
+            $cw_selected = $this->soup->querySelectorAll($child_cw_selector);
         } else if ($this->type == "SiblingGroup") {
-            $selected = $this->soup->find($group_cw_selector);
+            // SiblingGroup page specific casworker query
+            $cw_selected = $this->soup->find($group_cw_selector);
         }
+
+        // CaseWorker data
+        $caseworker_data = array();
+        // cLength is for indexing purposes
+        $cLength = $cw_selected->length;
+
+        /**
+         * Add data to $caseworker_data if necessary
+         *
+         * @param array $store caseworker_data
+         * @param \DOMElement $current current element
+         * @param \DOMElement $next next element
+         */
+        $get_data = function(&$store, $current, $next)
+        {
+            // Grab the text of the nodes
+            $current = trim($current->textContent);
+            $next = trim($next->textContent);
+            if (in_array($current, $caseworker_tare_keys))
+            {
+                // Apply new data
+                $store[$current] = $next;
+            }
+        };
+
+        // Iterate through all elements
+        for ($i = 0; $i < $cLength-1; $i++)
+        {
+            // Check for divs inside the selected div
+            // (TARE is weird, it happens "sometimes")
+            // There is only ever one level of child divs at most
+            $inner = $cw_selected->item($i)->find("div");
+            if ($inner)
+            {
+                $iLength = $inner->length;
+                for ($j=0; $j<$iLength-1; $j++)
+                {
+                    // Check for and possibly add new data
+                    $get_data(
+                        $caseworker_data,
+                        $inner->item($j), $inner->item($j + 1)
+                    );
+                }
+            } else {
+                // Check for and possibly add new data
+                $get_data(
+                    $caseworker_data,
+                    $cw_selected->item($i), $cw_selected->item($i + 1)
+                );
+            }
+        }
+        $this->log->debug(
+            "Case Worker Data:\n" . print_r($caseworker_data, true)
+        );
     }
 
     /**
