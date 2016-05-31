@@ -44,13 +44,15 @@ class PageParser
      * @param string $url to initialize the PageParser
      * @param string $type of page to parse
      * @param \Monolog\Handler\StreamHandler $logHandler log handler/dispatcher
+     * @param resource $session shared loggged in curl session
      */
-    function __construct($base, $url, $type, $logHandler)
+    function __construct($base, $url, $type, $logHandler, $session)
     {
         // Scaffolding
         $this->base = $base;
         $this->url = $url;
         $this->type = $type;
+        $this->session = $session;
 
         if ($type == "Child")
         {
@@ -75,13 +77,11 @@ class PageParser
     function parse()
     {
         // Using the curl session we have setup, grab the page data
-        $ch = curl_init();
         $opts = array(
             CURLOPT_URL => $this->url,
             CURLOPT_POST => false,
         );
-        $page_data = Utils\curl_exec_opts($ch, $opts);
-        curl_close($ch);
+        $page_data = Utils\curl_exec_opts($this->session, $opts);
         $this->soup = new \FluentDOM\Document();
         $this->soup->loadHTML($page_data);
 
@@ -133,12 +133,11 @@ class PageParser
         // Download Picture data and create an attachment for it
         if ($profile_picture_url)
         {
-            $ch = curl_init();
             $opts = array(
                 CURLOPT_URL => $profile_picture_url,
                 CURLOPT_POST => false,
             );
-            $profile_picture_data = Utils\curl_exec_opts($ch, $opts);
+            $profile_picture_data = Utils\curl_exec_opts($this->session, $opts);
             $profile_picture = new Attachment();
             $profile_picture->from_array(array(
                 "Profile" => true,
@@ -146,7 +145,6 @@ class PageParser
                 // This works for BodyLength, or curl_getinfo($ch)['download_content_length']
                 "BodyLength" => count(unpack("C*", $profile_picture_data)),
             ));
-            curl_close($ch);
 
             // Add the profile picture to the list of attachments
             array_push($attachments, $profile_picture);
@@ -165,19 +163,17 @@ class PageParser
                 $picture_url = $this->base . $node["href"];
 
                 // Download Picture data and create an attachment for it
-                $ch = curl_init();
                 $opts = array(
                     CURLOPT_URL => $picture_url,
                     CURLOPT_POST => false,
                 );
-                $picture_data = Utils\curl_exec_opts($ch, $opts);
+                $picture_data = Utils\curl_exec_opts($this->session, $opts);
                 $picture = new Attachment();
                 $picture->from_array(array(
                     "Profile" => true,
                     "Content" => $picture_data,
                     "BodyLength" => count(unpack("C*", $picture_data)),
                 ));
-                curl_close($ch);
 
                 // Add new photo to attachment list
                 array_push($attachments, $picture);

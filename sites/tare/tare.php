@@ -66,12 +66,15 @@ class TareSite
         $this->log = new \Monolog\Logger("TARE");
         $this->log->pushHandler($lHandler);
 
+        $this->session = curl_init();
+
         // Log in to TARE
         $this->username = $config["username"];
         $this->password = $config["password"];
         if (!$this->login())
         {
-            throw new \ErrorException("Failed to Login");
+            $this->log->info("Failed to login, exiting.");
+            exit();
         }
     }
 
@@ -93,20 +96,14 @@ class TareSite
         );
 
         // Login
-        $ch = curl_init();
-        $result = Utils\curl_exec_opts($ch, $opts);
-        if (!$result)
+        $result = Utils\curl_exec_opts($this->session, $opts);
+        if ((!preg_match("/.*Error\.aspx.*/", curl_getinfo($this->session)["redirect_url"])) &&
+            (curl_getinfo($this->session)["url"] == self::LOGINREDIRECT))
         {
-            $this->log->critical("Failed to Login.");
-            $this->log->critical(curl_error($ch));
-            return false;
-        } else if (!curl_getinfo($ch)["redirect_url"] == self::LOGINREDIRECT)
-        {
-            $this->log->critical("Failed to Login. Check config.");
+            return true;
+        } else {
             return false;
         }
-        curl_close($ch);
-        return true;
     }
 
     /**
@@ -137,15 +134,12 @@ class TareSite
         );
 
         // Simple Search
-        $ch = curl_init();
-        $result = Utils\curl_exec_opts($ch, $opts);
-        $info = curl_getinfo($ch);
+        $result = Utils\curl_exec_opts($this->session, $opts);
         if (!$result)
         {
-            $this->log->error(curl_error($ch));
+            $this->log->error(curl_error($this->session));
             return new AllChildren();
         }
-        curl_close($ch);
 
         // Parse results for links
         $soup = \FluentDOM::QueryCss($result, "text/html");
@@ -195,7 +189,7 @@ class TareSite
         {
             $child_obj = new PageParser(
                 self::BASEURL, $clink, "Child",
-                $this->logHandler
+                $this->logHandler, $this->session
             );
             $parsed_pages->add_child($child_obj->parse());
         }
@@ -204,7 +198,7 @@ class TareSite
         {
             $group_obj = new PageParser(
                 self::BASEURL, $glink, "SiblingGroup",
-                $this->logHandler
+                $this->logHandler, $this->session
             );
             $parsed_pages->add_sibling_group($group_obj->parse());
         }

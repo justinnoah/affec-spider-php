@@ -92,7 +92,7 @@ function main()
         }
         search_tare($config["sites"]["tare"]);
     } catch (\ErrorException $e) {
-        $log->critical($e);
+        printf($e . "\n");
     }
 }
 

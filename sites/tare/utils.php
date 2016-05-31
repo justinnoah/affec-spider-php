@@ -38,7 +38,7 @@ function curl_exec_opts($ch, $data)
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_SSL_VERIFYPEER => false,
         CURLOPT_SSL_VERIFYHOST => false,
-        CURLOPT_COOKIESESSION => true,
+        CURLOPT_FOLLOWLOCATION => true,
         CURLOPT_COOKIEJAR => COOKIEJAR,
         CURLOPT_USERAGENT => "Mozilla/5.0 (X11; Linux x86_64; rv:49.0) Gecko/20100101 Firefox/49.0",
     );
