@@ -18,11 +18,12 @@ namespace Crawler\Sites\Tare\PageParse;
 use Exception;
 
 require("crawler/data_types.php");
-use \Crawler\DataTypes\Child;
 use \Crawler\DataTypes\AllChildren;
+use \Crawler\DataTypes\Attachment;
+use \Crawler\DataTypes\CaseWorker;
+use \Crawler\DataTypes\Child;
 use \Crawler\DataTypes\SiblingGroup;
 use \Crawler\Sites\Tare\Utils;
-use \Crawler\DataTypes\Attachment;
 
 define("ALL_SIBLINGS_SELECTOR", "div#pageContent > div > div.galleryImage");
 define("CHILD_CASE_NUMBER", "div#pageContent > div > div > div:nth-child(2) > span");
@@ -135,7 +136,6 @@ class PageParser
             $this->log->debug("href: " . $node["href"]);
         }
 
-
         // Download Picture data and create an attachment for it
         if ($profile_picture_url)
         {
@@ -207,10 +207,11 @@ class PageParser
             "Region" => "Region",
             "TARE Coordinator" => "Name",
         );
-        $caseworker_tare_keys = array_keys($caseworker_tare_map);
 
         // CSS Selectors for CaseWorkers
         $child_cw_selector = "fieldset div";
+        // I hate magic numbers, sadly TARE gives us no choice
+        // If Caseworker parsing breaks in some way....LOOK HERE :XXX:
         $group_cw_selector = "div#pageContent div:nth-child(1) div:nth-child(6) div";
 
         if ($this->type == "Child")
@@ -235,15 +236,15 @@ class PageParser
          * @param \DOMElement $current current element
          * @param \DOMElement $next next element
          */
-        $get_data = function(&$store, &$keys, $current, $next)
+        $get_data = function(&$store, &$map, $current, $next)
         {
             // Grab the text of the nodes
             $current = trim($current->textContent);
             $next = trim($next->textContent);
-            if (in_array($current, $keys))
+            if (in_array($current, array_keys($map)))
             {
                 // Apply new data
-                $store[$current] = $next;
+                $store[$map[$current]] = $next;
             }
         };
 
@@ -261,21 +262,25 @@ class PageParser
                 {
                     // Check for and possibly add new data
                     $get_data(
-                        $caseworker_data, $caseworker_tare_keys,
+                        $caseworker_data, $caseworker_tare_map,
                         $inner->item($j), $inner->item($j + 1)
                     );
                 }
             } else {
                 // Check for and possibly add new data
                 $get_data(
-                    $caseworker_data, $caseworker_tare_keys,
+                    $caseworker_data, $caseworker_tare_map,
                     $cw_selected->item($i), $cw_selected->item($i + 1)
                 );
             }
         }
-        $this->log->debug(
-            "Case Worker Data:\n" . print_r($caseworker_data, true)
-        );
+
+        // Create CaseWorker common type and import the array
+        $cw = new CaseWorker();
+        $cw->from_array($caseworker_data);
+
+        // Save the Caseworker data to the Child or SiblingGroup
+        $this->data->set_value("CaseWorker", $cw);
     }
 
     /**

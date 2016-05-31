@@ -46,7 +46,7 @@ define("COMMON_KEYS", serialize(array(
     "Attachments",
     "Biography",
     "CaseNumber",
-    "Contact",
+    "CaseWorker",
     "ImportedFrom",
     "LegalStatus",
     "ListingNotesForFamily",
@@ -71,7 +71,7 @@ define("ATTACHMENT_KEYS", serialize(array(
  */
 define("CASEWORKER_KEYS",serialize(array(
     "Address",
-    "EmailAddress",
+    "Email",
     "Name",
     "PhoneNumber",
     "Region",
