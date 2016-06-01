@@ -15,6 +15,8 @@
 
 namespace Crawler\Databases\Salesforce;
 
+use Crawler\DataTypes\AllChildren;
+
 
 /**
  * Crawler export into Salesforce Database
@@ -44,6 +46,22 @@ class Salesforce
         $this->log->pushHandler($lHandler);
         $this->log->info("SalesForce Activated and ready to go!");
      }
+
+     /**
+      * Import Allchildren into our cache
+      *
+      * @param AllChildren $all_children Crawler parsed Child/SiblingGroups
+      */
+     function import_all_children(AllChildren $all_children)
+     {
+     }
+
+     /**
+      * Wrapper/API method to update Salesforce with locally cached data
+      */
+    function exit_handler()
+    {
+    }
 }
 
 ?>

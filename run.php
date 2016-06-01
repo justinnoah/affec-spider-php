@@ -65,22 +65,25 @@ function load_config($config="./config.yaml")
 }
 
 /**
- * Begin Search
+ * Search, parse, and import
  *
  * @param array $cfg Tare Config
  */
-function search_tare($cfg)
+function search_and_import($cfg)
 {
     $logHandler = setup_log_handler();
     $log = new \Monolog\Logger("Runner");
-    $tare = new TareSite($cfg, $logHandler);
 
+    $tare = new TareSite($cfg["sites"]["tare"], $logHandler);
+    $sf = new Salesforce($cfg["databases"]["salesforce"], $logHandler);
     // $dot = Utils\string_dot(range("a", "z"), range("a", "z"));
-    $dot = Utils\string_dot(range("a", "b"), range("a", "c"));
+    $dot = Utils\string_dot(range("a", "a"), range("a", "a"));
     foreach ($dot as $name)
     {
         $results = $tare->search_by_name($name);
-    };
+        $sf->import_all_children($results);
+    }
+    $sf->exit_handler();
 }
 
 /**
@@ -93,7 +96,7 @@ function main()
         {
             throw new \ErrorException("Unable to continue without a proper config.");
         }
-        search_tare($config["sites"]["tare"]);
+        search_and_import($config);
     } catch (\ErrorException $e) {
         printf($e . "\n");
     }
