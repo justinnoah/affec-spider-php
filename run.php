@@ -29,7 +29,10 @@ use Symfony\Component\Yaml\Yaml;
 // Project includes
 require("crawler/utils.php");
 require("sites/tare/tare.php");
-use Crawler\Sites\Tare\TareSite;
+use \Crawler\Sites\Tare\TareSite;
+require("dbs/salesforce/salesforce.php");
+use \Crawler\Databases\Salesforce\Salesforce;
+
 
 /**
  * Start a Logger
@@ -96,4 +99,5 @@ function main()
     }
 }
 
+// GOGOGOGOgogogogogogogogogogogogogo
 main();
