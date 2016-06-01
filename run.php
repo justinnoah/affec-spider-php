@@ -76,7 +76,7 @@ function search_tare($cfg)
     $dot = Utils\string_dot(range("a", "b"), range("a", "c"));
     foreach ($dot as $name)
     {
-        $tare->search_by_name($name);
+        $results = $tare->search_by_name($name);
     };
 }
 

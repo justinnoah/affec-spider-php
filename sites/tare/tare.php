@@ -15,14 +15,13 @@
 
 namespace Crawler\Sites\Tare;
 
-use \Crawler\DataTypes;
-
-require("sites/tare/utils.php");
+use \Crawler\DataTypes\AllChildren;
 
 require("page_parser.php");
 use \Crawler\Sites\Tare\PageParse\PageParser;
 
-use Crawler\DataTypes\AllChildren;
+require("sites/tare/utils.php");
+
 
 /**
  * TARE Site management
@@ -111,7 +110,7 @@ class TareSite
      *
      * @param string $name Name parameter for search
      *
-     * @return DataTypes\AllChildren containing the parsed data of the
+     * @return AllChildren containing the parsed data of the
      * children and sibling groups found by the search
      */
     function search_by_name($name="aa")
