@@ -75,6 +75,7 @@ class TareSite
             $this->log->info("Failed to login, exiting.");
             exit();
         }
+        $this->log->info("TARE Activated and ready to go!");
     }
 
     /**

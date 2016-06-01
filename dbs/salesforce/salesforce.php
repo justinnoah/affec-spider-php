@@ -42,6 +42,7 @@ class Salesforce
          // Setup logging
         $this->log = new \Monolog\Logger("Salesforce");
         $this->log->pushHandler($lHandler);
+        $this->log->info("SalesForce Activated and ready to go!");
      }
 }
 
