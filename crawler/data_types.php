@@ -29,14 +29,14 @@ define("CHILDREN_KEYS", serialize(array(
     "Name",
     "PrimaryLanguage",
     "Race",
-    "Siblings",
 )));
 
 /**
  * SiblingGroup specific keys
  */
 define("SIBLING_GROUP_KEYS", serialize(array(
-    "siblings",
+    // An array of Child objects
+    "RelatedChildren"
 )));
 
 /**

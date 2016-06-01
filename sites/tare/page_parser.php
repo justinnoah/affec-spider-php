@@ -15,8 +15,6 @@
 
 namespace Crawler\Sites\Tare\PageParse;
 
-use Exception;
-
 require("crawler/data_types.php");
 use \Crawler\DataTypes\AllChildren;
 use \Crawler\DataTypes\Attachment;
@@ -91,20 +89,21 @@ class PageParser
         $page_data = Utils\curl_exec_opts($this->session, $opts);
         $this->soup = new \FluentDOM\Document();
         $this->soup->loadHTML($page_data);
+        $this->soup->normalize();
 
         // Using a try/catch paradigm, parse attachments,
         // caseworker info, and child or group data
         try
         {
             $this->parse_attachments();
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $this->log->error("Falied to parse Attachments for $this->url");
             $this->log->error($e);
         }
         try
         {
             $this->parse_caseworker_info();
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $this->log->error("Falied to parse CaseWorker for $this->url");
             $this->log->error($e);
         }
@@ -232,7 +231,7 @@ class PageParser
          * Add data to $caseworker_data if necessary
          *
          * @param array $store caseworker_data
-         * @param array $keys caseworker_tare_keys
+         * @param array $map caseworker_tare_map
          * @param \DOMElement $current current element
          * @param \DOMElement $next next element
          */
