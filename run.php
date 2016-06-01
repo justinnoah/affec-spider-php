@@ -23,8 +23,6 @@ if (version_compare(phpversion(), '7.0.0', '>='))
 
 // Third Party includes
 include("vendor/autoload.php");
-use Symfony\Component\Yaml\Exception\ParseException;
-use Symfony\Component\Yaml\Yaml;
 
 // Project includes
 require("crawler/utils.php");
@@ -32,6 +30,7 @@ require("sites/tare/tare.php");
 use \Crawler\Sites\Tare\TareSite;
 require("dbs/salesforce/salesforce.php");
 use \Crawler\Databases\Salesforce\Salesforce;
+require("config.php");
 
 
 /**
@@ -47,22 +46,6 @@ function setup_log_handler($logfile="./spider.log")
     return $handler;
 }
 
-/**
- * Load config
- *
- * @param string $config config yaml
- */
-function load_config($config="./config.yaml")
-{
-    $file  = file_get_contents($config);
-    try {
-        $config = Yaml::parse($file);
-    } catch (ParseException $e) {
-        exit($e);
-    }
-
-    return $config;
-}
 
 /**
  * Search, parse, and import
