@@ -107,6 +107,17 @@ class PageParser
             $this->log->error("Falied to parse CaseWorker for $this->url");
             $this->log->error($e);
         }
+        try {
+            if ($this->type == "Child")
+            {
+                $this->parse_child_info();
+            } else {
+                $this->parse_sibling_group_info();
+            }
+        } catch (\Exception $e) {
+            $this->log->error("Falied to parse $this->type for $this->url");
+            $this->log->error($e);
+        }
 
         // Return the parsed object
         return $this->data;
@@ -283,10 +294,121 @@ class PageParser
     }
 
     /**
-    * Parse child data from Child.aspx pages
+    * Parse data for $this->data
+    *
+    * Child and SiblingGroup pages are very similar in many ways. The data
+    * gathered for $this->data can thus be obtained the same way.
+    *
+    * @param array $map Map of TARE filds to $this->data keys
+    * @param string $selector CSS Selector used to find data
     */
+    function parse_this_data_info($map, $selector)
+    {
+        /**
+         * Add data to $this->data if necessary
+         *
+         * Method internal to parse_this_data_info as it's used only to cut
+         * out about 6 LOC in various spots specific to the outer method
+         *
+         * @param array $map child our group tare key mapping array
+         * @param \DOMElement $current current element
+         * @param \DOMElement $next next element
+         */
+        $get_data = function(&$map, $current, $next)
+        {
+            // Grab the text of the nodes
+            $current = trim($current->textContent);
+            $next = trim($next->textContent);
+            if (in_array($current, array_keys($map)))
+            {
+                // Apply new data
+                $this->log->debug($map[$current] . ": " . $next);
+                $this->data->set_value($map[$current], $next);
+            }
+        };
+
+        // CSS selection for Child or Group page
+        $selected = $this->soup->querySelectorAll($selector);
+        // cLength is for indexing purposes
+        $cLength = $selected->length;
+        $this->log->debug("Selector: " . $selector);
+        $this->log->debug("cLength: " . $cLength);
+        // $this->log->debug("Selected: " . print_r($selected, true));
+        // $this->log->debug("Map: " . print_r($map, true));
+        // Iterate through all elements
+        for ($i = 0; $i < $cLength-1; $i++)
+        {
+            // Check for divs inside the selected div
+            // (TARE is weird, it happens "sometimes")
+            // There is only ever one level of child divs at most
+            $inner = $selected->item($i)->find("div");
+            if ($inner)
+            {
+                $iLength = $inner->length;
+                for ($j=0; $j<$iLength-1; $j++)
+                {
+                    // Check for and possibly add new data
+                    $get_data($map, $inner->item($j), $inner->item($j + 1));
+                }
+            } else {
+                // Check for and possibly add new data
+                $get_data(
+                    $map,$selected->item($i), $selected->item($i + 1)
+                );
+            }
+        }
+
+        // Now for the Child/SiblingGroup Bio
+        $headers = $this->soup->querySelectorAll("div[id='#Information'] div.groupHeader");
+        $hLen = $headers->length;
+        $bodies = $this->soup->querySelectorAll("div[id='#Information'] div.groupBody");
+        $bLen = $bodies->length;
+
+        if (!($bLen == $hLen))
+            $this->log-warning(
+                "Bio headers and bodies do not have the same count, results may look odd."
+            );
+
+        $bioText = "";
+        // Get the largest length to loop with
+        $maxLen = $hLen >= $bLen ? $hLen : $bLen;
+        for($i=0; $i>$maxLen; $i++)
+        {
+            // If Item exists, get its text
+            $hText = $headers->item($i) ? $headers->item($i)->textContent : "";
+            $bText = $bodies->item($i) ? $bodies->item($i)->textContent : "";
+
+            // Append text to the bio
+            $bioText .= trim($hText) . "\n\n" . trim($bText) . "\n\n";
+        }
+
+        // Set the Bio text to our object
+        $this->data->set_value("Biography", trim($bioText));
+    }
+
+    /**
+     * Parse child data from the Child.aspx page, store in $this->data
+     */
     function parse_child_info()
     {
+        // TARE Label to Crawler name map
+        $child_tare_map = array(
+            "Name" => "Name",
+            "Age" => "Age",
+            "Race" => "Race",
+            "Gender" => "Gender",
+            "Ethnicity" => "Ethnicity",
+            "Region" => "Region",
+            "Primary Language" => "PrimaryLanguage",
+        );
+
+        // :XXX: CSS Selector for Child Data on the Child's page
+        // DOMNodeList of the child data assuming the selector with magic
+        // numbers still works. See line above if  Child data stops parsing
+        $selector = "div[id*='#Information'] > div:nth-child(2) div";
+
+        // Select and Parse!
+        $this->parse_this_data_info($child_tare_map, $selector);
     }
 
     /**
@@ -297,17 +419,37 @@ class PageParser
     }
 
     /**
-     * Parse sibling group data from Group.aspx  pages
+     * Parse sibling group data from Group.aspx page, store in $this->data
      */
-    function parse_sibling_info()
+    function parse_sibling_group_info()
     {
-    }
+        // Only need to grab the bio.
+        // However the 2nd parameter must be a valid  CSS selector
+        $this->parse_this_data_info(array(), "s");
 
-    /**
-     * Identify which type of page to parse
-     */
-    function parse_info()
-    {
+        // Parse the individual children in the sibling group
+        $siblings_list_selector = "div#pageContent > div:nth-child(1) > div:nth-child(5)  span + a";
+        $child_links = $this->soup->querySelectorAll($siblings_list_selector);
+        $aLen = $child_links->length;
+
+        // Parse Siblings in the Group
+        $siblings = array();
+        foreach ($child_links as $link)
+        {
+            // Full url of the Child profile
+            $full_url = $this->base . $link["href"];
+            // Prep a page to parse
+            $page = new PageParser(
+                $this->base, $link["href"], "Child",
+                $this->log->getHandlers()[0], $this->session
+            );
+            // Parse and push it onto the siblings stack
+            array_push($siblings, $page->parse());
+        }
+
+        // SiblingGroup["RelatedChildren"] = $siblings
+        $this->log->debug("Pushing " . count($siblings) . " siblings.");
+        $this->data->set_value("RelatedChildren", $siblings);
     }
 }
 ?>
