@@ -9,4 +9,6 @@ databases:
         token: aosenthu
         sandbox: true
         contact_account: aosnetuhasonetuh
-        cache_db: derp.sql
+        cache_db:
+            driver: pdo_sqlite
+            path: ./derp.sql

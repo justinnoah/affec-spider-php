@@ -35,11 +35,11 @@ class Salesforce
      function __construct($cfg, $lHandler)
      {
          // Prep config
-         $this->cache_path = $cfg["cache_db"];
          $this->sf_username = $cfg["username"];
          $this->sf_pass = $cfg["password"];
          $this->sf_token = $cfg["token"];
          $this->sf_sandbox = $cfg["sandbox"];
+         $this->cache_cfg = $cfg["cache_db"];
 
          // Setup logging
         $this->log = new \Monolog\Logger("Salesforce");
