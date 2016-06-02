@@ -1,0 +1,62 @@
+CacheGroup:
+    type: entity
+    table: Sibling_Group__c
+    id:
+        id:
+            type: integer
+            generator:
+                strategy: AUTO
+    fields:
+        Bulletin_Number__c:
+            type: string
+        Caseworker__c:
+            type: string
+        Case_Number__c:
+            type: string
+        Children_s_Bio__c:
+            type: string
+        Child_1_First_Name__c:
+            type: string
+        Child_2_First_Name__c:
+            type: string
+        Child_3_First_Name__c:
+            type: string
+        Child_4_First_Name__c:
+            type: string
+        Child_5_First_Name__c:
+            type: string
+        Child_6_First_Name__c:
+            type: string
+        Child_7_First_Name__c:
+            type: string
+        Child_8_First_Name__c:
+            type: string
+        Children_s_Webpage__c:
+            type: string
+        District__c:
+            type: string
+        Name:
+            type: string
+        Legal_Status2__c:
+            type: string
+        Recruitment_Status__c:
+            type: string
+        Recruitment_Update__c:
+            type: string
+        Siblings:
+            type: string
+        State__c:
+            type: string
+        sf_id:
+            type: string
+    indexes:
+        name_index:
+            columns: [Bulletin_Number__c, Case_Number__c, Name, State__c, sf_id]
+    manyToOne:
+        contact:
+            targetEntity: CacheContact
+            inversedBy: groups
+    oneToMany:
+        attachments:
+            targetEntity: CacheAttachment
+            mappedBy: group

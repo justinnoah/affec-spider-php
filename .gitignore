@@ -12,3 +12,4 @@ composer.phar
 ### Project Specific ###
 config.yaml
 spider.log
+*.sql

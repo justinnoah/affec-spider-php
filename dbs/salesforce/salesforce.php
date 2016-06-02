@@ -16,6 +16,7 @@
 namespace Crawler\Databases\Salesforce;
 
 use Crawler\DataTypes\AllChildren;
+require("dbs/salesforce/cache_db.php");
 
 
 /**
@@ -45,6 +46,9 @@ class Salesforce
         $this->log = new \Monolog\Logger("Salesforce");
         $this->log->pushHandler($lHandler);
         $this->log->info("SalesForce Activated and ready to go!");
+
+        // Cache init
+        $this->em = init_cache_db($this->cache_cfg);
      }
 
      /**

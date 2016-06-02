@@ -1,0 +1,51 @@
+CacheChild:
+    type: entity
+    table: Children__c
+    id:
+        id:
+            type: integer
+            generator:
+                strategy: AUTO
+    fields:
+        Adoption_Bulletin_Number__c:
+            type: string
+        Child_s_Bio__c:
+            type: text
+        Child_s_Birthdate__c:
+            type: datetime
+        Child_s_Nationality__c:
+            type: string
+        Child_s_Primary_Language__c:
+            type: string
+        Child_s_Sex__c:
+            type: string
+            length: 1
+        Child_s_Siblings__c:
+            type: string
+        Child_s_State__c:
+            type: string
+        District__c:
+            type: string
+        Legal_Status2__c:
+            type: string
+        Link_to_Child_s_Page__c:
+            type: string
+        Name:
+            type: string
+        Recruitment_Status__c:
+            type: string
+        Recruitment_Update__c:
+            type: string
+        sf_id:
+            type: string
+    indexes:
+        name_index:
+            columns: [Adoption_Bulletin_Number__c, Name, sf_id]
+    manyToOne:
+        contact:
+            targetEntity: CacheContact
+            inversedBy: children
+    oneToMany:
+        attachments:
+            targetEntity: CacheAttachment
+            mappedBy: child

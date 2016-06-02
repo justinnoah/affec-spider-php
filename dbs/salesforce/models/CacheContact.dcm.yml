@@ -1,0 +1,36 @@
+CacheContact:
+    type: entity
+    table: Contact
+    id:
+        id:
+            type: integer
+            generator:
+                strategy: AUTO
+    fields:
+        FirstName:
+            type: string
+        LastName:
+            type: string
+        Email:
+            type: string
+        MailingStreet:
+            type: string
+        MailingCity:
+            type: string
+        MailingState:
+            type: string
+        MailingPostalCode:
+            type: integer
+            length: 5
+        sf_id:
+            type: string
+    indexes:
+        name_index:
+            columns: [FirstName, LastName, sf_id]
+    oneToMany:
+        children:
+            targetEntity: CacheChild
+            mappedBy: contact
+        groups:
+            targetEntity: CacheGroup
+            mappedBy: contact

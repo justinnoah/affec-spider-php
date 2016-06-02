@@ -1,0 +1,31 @@
+CacheAttachment:
+    type: entity
+    table: Attachment
+    id:
+        id:
+            type: integer
+            generator:
+                strategy: AUTO
+    fields:
+        Name:
+            type: string
+        BodyLength:
+            type: integer
+        Content:
+            type: blob
+        ContentType:
+            type: string
+        ParentId:
+            type: string
+        sf_id:
+            type: string
+    indexes:
+        name_index:
+            columns: [Name, sf_id]
+    manyToOne:
+        child:
+            targetEntity: CacheChild
+            mappedBy: attachments
+        group:
+            targetEntity: CacheGroup
+            mappedBy: attachments
