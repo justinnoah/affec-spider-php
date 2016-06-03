@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "3c76719620e9fb195ee6fc1da15425a7",
-    "content-hash": "3d2319972c6c6e1019c33ed03d851fcd",
+    "hash": "de0227070bb0ad1f489c757356b3a7a3",
+    "content-hash": "27ebf6e83659092ffc03c0f266ba7fbd",
     "packages": [
         {
             "name": "carica/phpcss",
@@ -45,6 +45,21 @@
             ],
             "description": "An css selector parser and converter",
             "time": "2014-06-23 08:25:18"
+        },
+        {
+            "name": "developerforce/force.com-toolkit-for-php",
+            "version": "20.0.10",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/developerforce/Force.com-Toolkit-for-PHP.git",
+                "reference": "tags/v20.0.10"
+            },
+            "type": "library",
+            "autoload": {
+                "classmap": [
+                    "soapclient"
+                ]
+            }
         },
         {
             "name": "doctrine/annotations",
