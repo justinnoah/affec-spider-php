@@ -27,11 +27,6 @@ function load_config($config=__DIR__."/config.yaml")
     $file  = file_get_contents($config);
     try {
         $config = Yaml::parse($file);
-        if (array_key_exists("salesforce", $config["databases"]))
-        {
-            $p = realpath($config["databases"]["salesforce"]["cache_db"]["path"]);
-            $config["databases"]["salesforce"]["cache_db"]["path"] = $p;
-        }
     } catch (ParseException $e) {
         exit($e);
     }
