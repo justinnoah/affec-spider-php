@@ -20,7 +20,51 @@
 class CacheChild
 {
     /**
-     * @var integer
+     * @var array Child -> CacheChild map
+     */
+    const parsed_map = array(
+        "Age" => "setChildSBirthdateC",
+        "AdoptionRecruitment" => "setRecruitmentStatusC",
+        "Biography" => "setChildSBioC",
+        "BulletinDate" => "",
+        "BulletinNumber" => "",
+        "CaseNumber" => "",
+        "Ethnicity" => "setChildSNationalityC",
+        "Gender" => "setChildSSexC",
+        "ImportedFrom" => "",
+        "LegalStatus" => "setLegalStatus2C",
+        "ListingNotesForFamily" => "",
+        "Name" => "setName",
+        "PageURL" => "setLinkToChildSPageC",
+        "PrimaryLanguage" => "setChildSPrimaryLanguageC",
+        "Race" => "setChildSNationalityC",
+        "Region" => "setDistrictC",
+        "State" => "setStateC",
+    );
+
+    /**
+     * @var array SF Child -> CacheChild map
+     */
+    const sf_map = array(
+        "Adoption_Bulletin_Number__c" => "setAdoptionBulletinNumberC",
+        "Child_s_Bio__c" => "setChildSBioC",
+        "Child_s_Birthdate__c" => "setChildSBirthdateC",
+        "Child_s_Nationality__c" => "setChildSNationalityC",
+        "Child_s_Primary_Language__c" => "setChildSPrimaryLanguageC",
+        "Child_s_Sex__c" => "setChildSSexC",
+        "Child_s_Siblings__c" => "setChildSSiblingsC",
+        "Child_s_State__c" => "setChildSStateC",
+        "District__c" => "setDistrictC",
+        "Legal_Status2__c" => "setLegalStatus2C",
+        "Link_to_Child_s_Page__c" => "setLinkToChildSPageC",
+        "Name" => "setName",
+        "Recruitment_Status__c" => "setRecruitmentStatusC",
+        "Recruitment_Update__c" => "setRecruitmentUpdateC",
+        "sf_id" => "setSfId",
+    );
+
+    /**
+     * @var int
      */
     private $id;
 
@@ -108,10 +152,6 @@ class CacheChild
      * @var \CacheContact
      */
     private $contact;
-
-    /**
-     * @var $map Map of Child to Children__c keys
-     */
 
     /**
      * Constructor
@@ -570,6 +610,50 @@ class CacheChild
     public function validatePersist()
     {
         $this->validate();
+    }
+
+    /**
+     * Hydration via a Traversable data and map array
+     *
+     * @param Traversable $traversable to convert to CachChild
+     * @param array $map array to convert to CachChild
+     */
+    private static function from_map($traversable, $map)
+    {
+        $t = new CacheChild();
+        foreach ($traversable as $key => $value)
+        {
+            if (array_key_exists($key, $map) && $map($key))
+            {
+                $prop = $map($key);
+                $t->$prop($value);
+            }
+        }
+        return $t;
+    }
+
+    /**
+     * Hydration from parsed data
+     *
+     * @param array $arr array to convert to CachChild
+     */
+    public static function from_parsed($arr)
+    {
+        $child = self::from_map($arr, self::parsed_map);
+        return $child;
+    }
+
+    /**
+     * Hydration from salesforce data
+     *
+     * @param \sObject $sob array to convert to CachChild
+     */
+    public static function from_sf($sob)
+    {
+        $sob["sf_id"] =  $sob["id"];
+        unset($sob["id"]);
+        $child = self::from_map($sob, self::sf_map);
+        return $child;
     }
 }
 ?>

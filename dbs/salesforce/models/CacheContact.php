@@ -368,5 +368,49 @@ class CacheContact
     {
         // Add your code here
     }
+
+    /**
+     * Hydration via a Traversable data and map array
+     *
+     * @param Traversable $traversable to convert to CachContact
+     * @param array $map array to convert to CachContact
+     */
+    private static function from_map($traversable, $map)
+    {
+        $t = new CacheContact();
+        foreach ($contact as $key => $value)
+        {
+            if (array_key_exists($key, $map) && $map($key))
+            {
+                $prop = $map($key);
+                $t->$prop($value);
+            }
+        }
+        return $t;
+    }
+
+    /**
+     * Hydration from parsed data
+     *
+     * @param array $arr array to convert to CachChild
+     */
+    public static function from_parsed($arr)
+    {
+        $contact = self::from_map($arr, self::parsed_map);
+        return $contact;
+    }
+
+    /**
+     * Hydration from salesforce data
+     *
+     * @param \sObject $sob array to convert to CachChild
+     */
+    public static function from_sf($sob)
+    {
+        $sob["sf_id"] =  $sob["id"];
+        unset($sob["id"]);
+        $contact = self::from_map($sob, self::sf_map);
+        return $contact;
+    }
 }
 ?>

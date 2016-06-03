@@ -265,3 +265,49 @@ class CacheAttachment
     {
         return $this->group;
     }
+
+    /**
+     * Hydration via a Traversable data and map array
+     *
+     * @param Traversable $traversable to convert to CachAttachment
+     * @param array $map array to convert to CachAttachment
+     */
+    private static function from_map($traversable, $map)
+    {
+        $t = new CacheAttachment();
+        foreach ($child as $key => $value)
+        {
+            if (array_key_exists($key, $map) && $map($key))
+            {
+                $prop = $map($key);
+                $t->$prop($value);
+            }
+        }
+        return $t;
+    }
+
+    /**
+     * Hydration from parsed data
+     *
+     * @param array $arr array to convert to CachAttachment
+     */
+    public static function from_parsed($arr)
+    {
+        $att = self::from_map($arr, self::parsed_map);
+        return $att;
+    }
+
+    /**
+     * Hydration from salesforce data
+     *
+     * @param \sObject $sob array to convert to CachAttachment
+     */
+    public static function from_sf($sob)
+    {
+        $sob["sf_id"] =  $sob["id"];
+        unset($sob["id"]);
+        $att = self::from_map($sob, self::sf_map);
+        return $att;
+    }
+}
+?>
