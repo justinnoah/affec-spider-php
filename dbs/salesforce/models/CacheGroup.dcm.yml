@@ -60,3 +60,6 @@ CacheGroup:
         attachments:
             targetEntity: CacheAttachment
             mappedBy: group
+    lifecycleCallbacks:
+        preUpdate: [ validateUpdate ]
+        prePersist: [ validatePersist ]

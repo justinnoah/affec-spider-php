@@ -49,3 +49,6 @@ CacheChild:
         attachments:
             targetEntity: CacheAttachment
             mappedBy: child
+    lifecycleCallbacks:
+        preUpdate: [ validateUpdate ]
+        prePersist: [ validatePersist ]

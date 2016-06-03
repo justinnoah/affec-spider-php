@@ -34,3 +34,6 @@ CacheContact:
         groups:
             targetEntity: CacheGroup
             mappedBy: contact
+    lifecycleCallbacks:
+        preUpdate: [ validateUpdate ]
+        prePersist: [ validatePersist ]
