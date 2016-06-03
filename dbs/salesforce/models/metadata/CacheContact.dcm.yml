@@ -25,7 +25,7 @@ CacheContact:
         sf_id:
             type: string
     indexes:
-        name_index:
+        contact_index:
             columns: [FirstName, LastName, sf_id]
     oneToMany:
         children:

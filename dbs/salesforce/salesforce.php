@@ -16,8 +16,12 @@
 namespace Crawler\Databases\Salesforce;
 
 use Crawler\DataTypes\AllChildren;
-require("dbs/salesforce/cache_db.php");
 
+require("dbs/salesforce/cache_db.php");
+use CacheAttachment;
+use CacheChild;
+use CacheContact;
+use CacheGroup;
 
 /**
  * Crawler export into Salesforce Database

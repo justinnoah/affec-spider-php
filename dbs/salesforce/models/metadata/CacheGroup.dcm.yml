@@ -50,7 +50,7 @@ CacheGroup:
         sf_id:
             type: string
     indexes:
-        name_index:
+        group_index:
             columns: [Bulletin_Number__c, Case_Number__c, Name, State__c, sf_id]
     manyToOne:
         contact:

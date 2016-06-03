@@ -20,7 +20,7 @@ CacheAttachment:
         sf_id:
             type: string
     indexes:
-        name_index:
+        att_index:
             columns: [Name, sf_id]
     manyToOne:
         child:

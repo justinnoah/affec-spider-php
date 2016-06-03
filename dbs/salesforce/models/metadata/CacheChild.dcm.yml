@@ -39,7 +39,7 @@ CacheChild:
         sf_id:
             type: string
     indexes:
-        name_index:
+        child_index:
             columns: [Adoption_Bulletin_Number__c, Name, sf_id]
     manyToOne:
         contact:

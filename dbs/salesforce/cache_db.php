@@ -17,15 +17,15 @@
 use Doctrine\ORM\Tools\Setup;
 use Doctrine\ORM\EntityManager;
 
-include("dbs/salesforce/models/generated/CacheAttachment.php");
-include("dbs/salesforce/models/generated/CacheContact.php");
-include("dbs/salesforce/models/generated/CacheChild.php");
-include("dbs/salesforce/models/generated/CacheGroup.php");
+include("dbs/salesforce/models/CacheAttachment.php");
+include("dbs/salesforce/models/CacheContact.php");
+include("dbs/salesforce/models/CacheChild.php");
+include("dbs/salesforce/models/CacheGroup.php");
 
 
 function init_cache_db($cfg)
 {
-    $db_models = Setup::createYAMLMetadataConfiguration(array(__DIR__."/models"), true);
+    $db_models = Setup::createYAMLMetadataConfiguration(array(__DIR__."/models/metadata"), true);
     $em = EntityManager::create($cfg, $db_models);
     return $em;
 }
