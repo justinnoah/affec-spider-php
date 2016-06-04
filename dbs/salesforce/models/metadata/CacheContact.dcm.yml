@@ -9,24 +9,32 @@ CacheContact:
     fields:
         FirstName:
             type: string
+            nullable: true
         LastName:
             type: string
         Email:
             type: string
+            nullable: true
         MailingStreet:
             type: string
+            nullable: true
         MailingCity:
             type: string
+            nullable: true
         MailingState:
             type: string
         MailingPostalCode:
             type: integer
             length: 5
+            nullable: true
+        Phone:
+            type: string
+            nullable: true
         sf_id:
             type: string
     indexes:
         contact_index:
-            columns: [FirstName, LastName, sf_id]
+            columns: [LastName, sf_id]
     oneToMany:
         children:
             targetEntity: CacheChild
