@@ -23,6 +23,11 @@ use \Crawler\Sites\Tare\PageParse\PageParser;
 require("sites/tare/utils.php");
 
 
+define("CURRENT_STATE_SHORT", "TX");
+define("CURRENT_STATE", "Texas");
+define("CURRENT_STATE_LONG", "Texas TX");
+
+
 /**
  * TARE Site management
  *
