@@ -1,0 +1,6 @@
+CacheResolve:
+    type: entity
+    table: SFCheck
+    id:
+        LastChecked:
+            type: datetime

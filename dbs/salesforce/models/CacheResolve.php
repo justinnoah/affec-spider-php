@@ -14,20 +14,42 @@
 #  limitations under the License.
 
 
-use Doctrine\ORM\Tools\Setup;
-use Doctrine\ORM\EntityManager;
-
-include("dbs/salesforce/models/CacheAttachment.php");
-include("dbs/salesforce/models/CacheContact.php");
-include("dbs/salesforce/models/CacheChild.php");
-include("dbs/salesforce/models/CacheGroup.php");
-include("dbs/salesforce/models/CacheResolve.php");
-
-
-function init_cache_db($cfg)
+/**
+ * CacheResolve
+ */
+class CacheResolve
 {
-    $db_models = Setup::createYAMLMetadataConfiguration(array(__DIR__."/models/metadata"), true);
-    $em = EntityManager::create($cfg, $db_models);
-    return $em;
+    /**
+     * @var \DateTime
+     */
+    private $LastChecked;
+
+
+    /**
+     * Set lastChecked
+     *
+     * @param \DateTime $lastChecked
+     *
+     * @return CacheResolve
+     */
+    public function setLastChecked($lastChecked = "")
+    {
+        if (!$lastChecked)
+            $this->LastChecked = strtotime("now");
+        else
+            $this->LastChecked = $lastChecked;
+
+        return $this;
+    }
+
+    /**
+     * Get lastChecked
+     *
+     * @return \DateTime
+     */
+    public function getLastChecked()
+    {
+        return $this->LastChecked;
+    }
 }
 ?>
