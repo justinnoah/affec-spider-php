@@ -20,15 +20,6 @@
 class CacheAttachment
 {
     /**
-     * @var array sf_map  SF -> CacheAttachment
-     */
-    const sf_map = array(
-        "Content-Type" => "setContentType",
-        "BodyLength" => "setBodyLength",
-        "ParentId" => "setParentId",
-    );
-
-    /**
      * @var array sf_map  Attachment -> CacheAttachment
      */
     const parsed_map = array(
@@ -36,6 +27,15 @@ class CacheAttachment
         "ContentType" => "setContentType",
         "Profile" => "setProfile",
         "BodyLength" => "setBodyLength",
+    );
+
+    /**
+     * @var array sf_map  SF -> CacheAttachment
+     */
+    const sf_map = array(
+        "Content-Type" => "setContentType",
+        "BodyLength" => "setBodyLength",
+        "ParentId" => "setParentId",
     );
 
     /**

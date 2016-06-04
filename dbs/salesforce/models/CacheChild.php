@@ -60,7 +60,6 @@ class CacheChild
         "Name" => "setName",
         "Recruitment_Status__c" => "setRecruitmentStatusC",
         "Recruitment_Update__c" => "setRecruitmentUpdateC",
-        "sf_id" => "setSfId",
     );
 
     /**
