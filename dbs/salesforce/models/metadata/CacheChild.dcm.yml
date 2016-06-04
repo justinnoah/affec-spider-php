@@ -11,31 +11,39 @@ CacheChild:
             type: string
         Child_s_Bio__c:
             type: text
+            nullable: true
         Child_s_Birthdate__c:
-            type: datetime
+            type: date
         Child_s_Nationality__c:
             type: string
+            nullable: true
         Child_s_Primary_Language__c:
             type: string
+            nullable: true
         Child_s_Sex__c:
             type: string
-            length: 1
+            nullable: true
         Child_s_Siblings__c:
             type: string
+            nullable: true
         Child_s_State__c:
             type: string
         District__c:
             type: string
+            nullable: true
         Legal_Status2__c:
             type: string
+            nullable: true
         Link_to_Child_s_Page__c:
             type: string
+            nullable: true
         Name:
             type: string
         Recruitment_Status__c:
             type: string
         Recruitment_Update__c:
             type: string
+            nullable: true
         sf_id:
             type: string
     indexes:

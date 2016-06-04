@@ -227,7 +227,7 @@ class CacheChild
      */
     public function setChildSBirthdateC($childSBirthdateC)
     {
-        $this->Child_s_Birthdate__c = $childSBirthdateC;
+        $this->Child_s_Birthdate__c = date_create($childSBirthdateC);
 
         return $this;
     }

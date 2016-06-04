@@ -154,10 +154,12 @@ class Salesforce
             {
                 $this->em->persist($new_cache_obj);
             } else {
-                $this->em->remove($exist);
+                foreach ($exist as $me)
+                    $this->em->remove($me);
                 $this->em->persist($new_cache_obj);
             }
         }
+        $this->em->flush();
     }
 
     /**
