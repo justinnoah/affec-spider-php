@@ -20,6 +20,25 @@
 class CacheAttachment
 {
     /**
+     * @var array sf_map  SF -> CacheAttachment
+     */
+    const sf_map = array(
+        "Content-Type" => "setContentType",
+        "BodyLength" => "setBodyLength",
+        "ParentId" => "setParentId",
+    );
+
+    /**
+     * @var array sf_map  Attachment -> CacheAttachment
+     */
+    const parsed_map = array(
+        "Content" => "setContent",
+        "ContentType" => "setContentType",
+        "Profile" => "setProfile",
+        "BodyLength" => "setBodyLength",
+    );
+
+    /**
      * @var int
      */
     private $id;
@@ -139,7 +158,7 @@ class CacheAttachment
     /**
      * Get content
      *
-     * @return binary
+     * @return blob
      */
     public function getContent()
     {
@@ -269,17 +288,17 @@ class CacheAttachment
     /**
      * Hydration via a Traversable data and map array
      *
-     * @param Traversable $traversable to convert to CachAttachment
-     * @param array $map array to convert to CachAttachment
+     * @param Traversable $traversable to convert to CacheAttachment
+     * @param array $map array to convert to CacheAttachment
      */
     private static function from_map($traversable, $map)
     {
         $t = new CacheAttachment();
-        foreach ($child as $key => $value)
+        foreach ($traversable as $key => $value)
         {
-            if (array_key_exists($key, $map) && $map($key))
+            if (array_key_exists($key, $map) && $map[$key])
             {
-                $prop = $map($key);
+                $prop = $map[$key];
                 $t->$prop($value);
             }
         }
@@ -289,25 +308,26 @@ class CacheAttachment
     /**
      * Hydration from parsed data
      *
-     * @param array $arr array to convert to CachAttachment
+     * @param array $arr array to convert to CacheAttachment
      */
     public static function from_parsed($arr)
     {
-        $att = self::from_map($arr, self::parsed_map);
-        return $att;
+        $attachment = self::from_map($arr, self::parsed_map);
+        return $attachment;
     }
 
     /**
      * Hydration from salesforce data
      *
-     * @param \sObject $sob array to convert to CachAttachment
+     * @param string $id sf id of Attachment
+     * @param \SObject $sob array to convert to CacheAttachment
      */
-    public static function from_sf($sob)
+    public static function from_sf($id, $sob)
     {
-        $sob["sf_id"] =  $sob["id"];
-        unset($sob["id"]);
-        $att = self::from_map($sob, self::sf_map);
-        return $att;
+        $arr = get_object_vars($sob);
+        $attachment = self::from_map($arr, self::sf_map);
+        $attachment->setSfId($id);
+        return $attachment;
     }
 }
 ?>

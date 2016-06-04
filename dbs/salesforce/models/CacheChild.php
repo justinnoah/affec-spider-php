@@ -615,7 +615,7 @@ class CacheChild
     /**
      * Hydration via a Traversable data and map array
      *
-     * @param Traversable $traversable to convert to CachChild
+     * @param Traversable $traversable to convert to CacheChild
      * @param array $map array to convert to CachChild
      */
     private static function from_map($traversable, $map)
@@ -623,9 +623,9 @@ class CacheChild
         $t = new CacheChild();
         foreach ($traversable as $key => $value)
         {
-            if (array_key_exists($key, $map) && $map($key))
+            if (array_key_exists($key, $map) && $map[$key])
             {
-                $prop = $map($key);
+                $prop = $map[$key];
                 $t->$prop($value);
             }
         }
@@ -635,7 +635,7 @@ class CacheChild
     /**
      * Hydration from parsed data
      *
-     * @param array $arr array to convert to CachChild
+     * @param array $arr array to convert to CacheChild
      */
     public static function from_parsed($arr)
     {
@@ -646,13 +646,14 @@ class CacheChild
     /**
      * Hydration from salesforce data
      *
-     * @param \sObject $sob array to convert to CachChild
+     * @param string $id sf id of Child
+     * @param \SObject $sob array to convert to CacheChild
      */
-    public static function from_sf($sob)
+    public static function from_sf($id, $sob)
     {
-        $sob["sf_id"] =  $sob["id"];
-        unset($sob["id"]);
-        $child = self::from_map($sob, self::sf_map);
+        $arr = get_object_vars($sob);
+        $child = self::from_map($arr, self::sf_map);
+        $child->setSfId($id);
         return $child;
     }
 }

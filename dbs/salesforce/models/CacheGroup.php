@@ -20,7 +20,16 @@
 class CacheGroup
 {
     /**
-     * @var integer
+     * @var array sf_map  Attachment -> CacheGroup
+     */
+    const parsed_map = array();
+    /**
+     * @var array sf_map  SF -> CacheGroup
+     */
+    const sf_map = array();
+
+    /**
+     * @var int
      */
     private $id;
 
@@ -150,7 +159,7 @@ class CacheGroup
     /**
      * Get id
      *
-     * @return integer
+     * @return int
      */
     public function getId()
     {
@@ -734,4 +743,50 @@ class CacheGroup
     {
         // Add your code here
     }
+
+    /**
+     * Hydration via a Traversable data and map array
+     *
+     * @param Traversable $traversable to convert to CacheGroup
+     * @param array $map array to convert to CacheGroup
+     */
+    private static function from_map($traversable, $map)
+    {
+        $t = new CacheGroup();
+        foreach ($traversable as $key => $value)
+        {
+            if (array_key_exists($key, $map) && $map[$key])
+            {
+                $prop = $map[$key];
+                $t->$prop($value);
+            }
+        }
+        return $t;
+    }
+
+    /**
+     * Hydration from parsed data
+     *
+     * @param array $arr array to convert to CacheGroup
+     */
+    public static function from_parsed($arr)
+    {
+        $group = self::from_map($arr, self::parsed_map);
+        return $group;
+    }
+
+    /**
+     * Hydration from salesforce data
+     *
+     * @param string $id sf id of Group
+     * @param \SObject $sob array to convert to CacheGroup
+     */
+    public static function from_sf($id, $sob)
+    {
+        $arr = get_object_vars($sob);
+        $group = self::from_map($arr, self::sf_map);
+        $group->setSfId($id);
+        return $group;
+    }
 }
+?>

@@ -17,7 +17,6 @@ namespace Crawler\Databases\Salesforce;
 
 
 use Crawler\DataTypes\AllChildren;
-
 require("dbs/salesforce/cache_db.php");
 use CacheAttachment;
 use CacheChild;

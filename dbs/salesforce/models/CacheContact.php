@@ -20,6 +20,30 @@
 class CacheContact
 {
     /**
+     * @var array of Contact -> CacheContact map
+     */
+    const parsed_map = array(
+        "Name" => "setName",
+        "Address" => "setAddress",
+        "EmailAddress" => "setEmail",
+        "PhoneNumber" => "setPhone",
+    );
+
+    /**
+     * @var array of SF Contact -> CacheContact map
+     */
+    const sf_map = array(
+        "FirstName" => "setFirstName",
+        "LastName" => "setLastName",
+        "MailingState" => "setMailingState",
+        "MailingCity" => "setMailingCity",
+        "MailingStreet" => "setMailingStreet",
+        "MailingPostalCode" => "setMailingPostalCode",
+        "Email" => "setEmail",
+        "Phone" => "setPhone",
+    );
+
+    /**
      * @var int
      */
     private $id;
@@ -62,6 +86,11 @@ class CacheContact
     /**
      * @var string
      */
+    private $Phone;
+
+    /**
+     * @var string
+     */
     private $sf_id;
 
     /**
@@ -91,6 +120,15 @@ class CacheContact
     public function getId()
     {
         return $this->id;
+    }
+
+    /**
+     * Set Name helper method
+     *
+     * @param string $name Name to split to first and last
+     */
+    public function setName($name)
+    {
     }
 
     /**
@@ -148,7 +186,7 @@ class CacheContact
      *
      * @return CacheContact
      */
-    public function setEmail(string $email)
+    public function setEmail($email)
     {
         $this->Email = $email;
 
@@ -158,11 +196,20 @@ class CacheContact
     /**
      * Get email
      *
-     * @return \email
+     * @return string
      */
     public function getEmail()
     {
         return $this->Email;
+    }
+
+    /**
+     * Helper Function for setting an Address
+     *
+     * @param string $address Address string to validate
+     */
+    public function setAddress($address)
+    {
     }
 
     /**
@@ -259,6 +306,30 @@ class CacheContact
     public function getMailingPostalCode()
     {
         return $this->MailingPostalCode;
+    }
+
+    /**
+     * Set setPhone
+     *
+     * @param string $phone
+     *
+     * @return CacheContact
+     */
+    public function setPhone($phone)
+    {
+        $this->Phone = $phone;
+
+        return $this;
+    }
+
+    /**
+     * Get Phone
+     *
+     * @return string
+     */
+    public function getPhone()
+    {
+        return $this->Phone;
     }
 
     /**
@@ -372,17 +443,17 @@ class CacheContact
     /**
      * Hydration via a Traversable data and map array
      *
-     * @param Traversable $traversable to convert to CachContact
-     * @param array $map array to convert to CachContact
+     * @param Traversable $traversable to convert to CacheContact
+     * @param array $map array to convert to CacheContact
      */
     private static function from_map($traversable, $map)
     {
         $t = new CacheContact();
-        foreach ($contact as $key => $value)
+        foreach ($traversable as $key => $value)
         {
-            if (array_key_exists($key, $map) && $map($key))
+            if (array_key_exists($key, $map) && $map[$key])
             {
-                $prop = $map($key);
+                $prop = $map[$key];
                 $t->$prop($value);
             }
         }
@@ -392,7 +463,7 @@ class CacheContact
     /**
      * Hydration from parsed data
      *
-     * @param array $arr array to convert to CachChild
+     * @param array $arr array to convert to CachContact
      */
     public static function from_parsed($arr)
     {
@@ -403,13 +474,14 @@ class CacheContact
     /**
      * Hydration from salesforce data
      *
-     * @param \sObject $sob array to convert to CachChild
+     * @param string $id sf id of Contact
+     * @param \SObject $sob array to convert to CacheContact
      */
-    public static function from_sf($sob)
+    public static function from_sf($id, $sob)
     {
-        $sob["sf_id"] =  $sob["id"];
-        unset($sob["id"]);
-        $contact = self::from_map($sob, self::sf_map);
+        $arr = get_object_vars($sob);
+        $contact = self::from_map($arr, self::sf_map);
+        $contact->setSfId($id);
         return $contact;
     }
 }
