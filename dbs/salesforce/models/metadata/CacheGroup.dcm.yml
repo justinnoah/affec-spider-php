@@ -9,41 +9,54 @@ CacheGroup:
     fields:
         Bulletin_Number__c:
             type: string
+            nullable: true
         Caseworker__c:
             type: string
+            nullable: true
         Case_Number__c:
             type: string
+            nullable: true
         Children_s_Bio__c:
             type: string
+            nullable: true
         Child_1_First_Name__c:
             type: string
+            nullable: true
         Child_2_First_Name__c:
             type: string
+            nullable: true
         Child_3_First_Name__c:
             type: string
+            nullable: true
         Child_4_First_Name__c:
             type: string
+            nullable: true
         Child_5_First_Name__c:
             type: string
+            nullable: true
         Child_6_First_Name__c:
             type: string
+            nullable: true
         Child_7_First_Name__c:
             type: string
+            nullable: true
         Child_8_First_Name__c:
             type: string
+            nullable: true
         Children_s_Webpage__c:
             type: string
+            nullable: true
         District__c:
             type: string
+            nullable: true
         Name:
             type: string
         Legal_Status2__c:
             type: string
+            nullable: true
         Recruitment_Status__c:
             type: string
         Recruitment_Update__c:
-            type: string
-        Siblings:
             type: string
         State__c:
             type: string

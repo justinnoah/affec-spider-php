@@ -22,11 +22,43 @@ class CacheGroup
     /**
      * @var array sf_map  Attachment -> CacheGroup
      */
-    const parsed_map = array();
+    const parsed_map = array(
+        "Biography" => "setChildren_s_Bio__c",
+        "BulletinNumber" => "Bulletin_Number__c",
+        "CaseNumber" => "setCaseNumberC",
+        "LegalStatus" => "setLegalStatus2C",
+        "Name" => "setName",
+        "PageURL" => "setChildrenSWebpageC",
+        "RecruitmentStatus" => "setRecruitmentStatusC",
+        "RecruitmentUpdate" => "setRecruitmentUpdateC",
+        "Region" => "setDistrictC",
+        "Siblings" => "setSiblings",
+        "State" => "setStateC",
+    );
     /**
      * @var array sf_map  SF -> CacheGroup
      */
-    const sf_map = array();
+    const sf_map = array(
+        "Bulletin_Number__c" => "setBulletinNumberC",
+        "Case_Number__c" => "setCaseNumberC",
+        "Caseworker__c" => "setCaseWorkerC",
+        'Child_1_First_Name__c' => "setChild1FirstNameC",
+        'Child_2_First_Name__c' => "setChild2FirstNameC",
+        'Child_3_First_Name__c' => "setChild3FirstNameC",
+        'Child_4_First_Name__c' => "setChild4FirstNameC",
+        'Child_5_First_Name__c' => "setChild5FirstNameC",
+        'Child_6_First_Name__c' => "setChild6FirstNameC",
+        'Child_7_First_Name__c' => "setChild7FirstNameC",
+        'Child_8_First_Name__c' => "setChild8FirstNameC",
+        "Children_s_Bio__c" => "setChildrenSBioC",
+        "Children_s_Webpage__c" => "setChildrenSWebpageC",
+        "District__c" => "setDistrictC",
+        "Legal_Status2__c" => "setLegalStatus2C",
+        "Name" => "setName",
+        "Recruitment_Status__c" => "setRecruitmentStatusC",
+        "Recruitment_Update__c" => "setRecruitmentUpdateC",
+        "State__c" => "setStateC",
+    );
 
     /**
      * @var int
@@ -122,11 +154,6 @@ class CacheGroup
      * @var string
      */
     private $Recruitment_Update__c;
-
-    /**
-     * @var string
-     */
-    private $Siblings;
 
     /**
      * @var string
@@ -601,25 +628,11 @@ class CacheGroup
     /**
      * Set siblings
      *
-     * @param string $siblings
-     *
      * @return CacheGroup
      */
-    public function setSiblings($siblings)
+    public function setSiblings()
     {
-        $this->Siblings = $siblings;
-
         return $this;
-    }
-
-    /**
-     * Get siblings
-     *
-     * @return string
-     */
-    public function getSiblings()
-    {
-        return $this->Siblings;
     }
 
     /**
