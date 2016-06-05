@@ -243,7 +243,9 @@ class Salesforce
            ->where($gqb->expr()->isNotNull("g.sf_id"));
 
         // Query cached results
-        $cache_results = $cqb->getQuery()->getResult() + $gqb->getQuery()->getResult();
+        $cache_results = array_merge(
+            $cqb->getQuery()->getResult(), $gqb->getQuery()->getResult()
+        );
         $this->log->debug("Cache Result Count: " . count($cache_results));
 
         $att_q = "SELECT Id,Name,BodyLength,ContentType,ParentId " .
@@ -256,7 +258,7 @@ class Salesforce
             $id_list = array_merge($parent_ids + array($new_id));
             // 1 - a trailing closed paren - ')'
             $l = strlen($att_q . implode(",", $id_list) . ")");
-            if ($l < (20000 - strlen($new_id) - 1))
+            if ($l < (20000 - strlen($new_id)))
             {
                 array_push($parent_ids, $new_id);
             } else {
