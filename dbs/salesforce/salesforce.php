@@ -24,6 +24,7 @@ use CacheContact;
 use CacheGroup;
 use CacheResolve;
 
+
 /**
  * Crawler export into Salesforce Database
  */
@@ -66,6 +67,10 @@ class Salesforce
     function import_sf_into_cache()
     {
         $this->log->debug("Logging Into SF");
+        // A new LastModifiedDate check
+        $cr = new CacheResolve();
+        $cr->setLastChecked();
+
         $this->sf_conn = new \SforcePartnerClient();
         $this->sf_conn->createConnection($this->sf_wsdl . ".partner.wsdl");
         $this->sf_conn->login(
@@ -92,15 +97,16 @@ class Salesforce
         // Grab Groups
         $where = "WHERE State__c='" . CURRENT_STATE_LONG . "'";
         $this->import_from_sf("CacheGroup", $where);
-        // Grab Attachments
+        // Grab Attachments (More complex than above...so...)
+        $this->import_sf_attachments();
 
+        // Remove current pull date
         $this->log->debug("Flushing SF Data");
         foreach ($lastPulled as $lp)
         {
             $this->em->remove($lp);
         }
-        $cr = new CacheResolve();
-        $cr->setLastChecked();
+        // Persist the new date
         $this->em->persist($cr);
         $this->em->flush();
     }
@@ -112,7 +118,6 @@ class Salesforce
      */
     function sfQueryAll($query)
     {
-        $this->log->debug($query);
         $response = $this->sf_conn->query($query);
         $all_records = array();
         foreach ($response->records as $record)
@@ -140,7 +145,6 @@ class Salesforce
 
         // Simple type to SF Table name map
         $type_table_map = array(
-            "CacheAttachment" => "Attachment",
             "CacheChild" => "Children__c",
             "CacheContact" => "Contact",
             "CacheGroup" => "Sibling_Group__c"
@@ -189,6 +193,82 @@ class Salesforce
             }
         }
         $this->em->flush();
+    }
+
+    /**
+     * Grab attachments with the given ParentIds
+     *
+     * @param string $q_start the beginning of the query
+     * @param array $ids ParentIds of attachments
+     */
+    function import_sf_attachment_chunk($q_start, $ids)
+    {
+        $q = $q_start . implode(",", $ids) . ")";
+        $this->log->debug("Attachment Chunk Query Length: " . strlen($q));
+        $attachments = $this->sfQueryAll($q);
+        foreach ($attachments as $attachment)
+        {
+            $a = \CacheAttachment::from_sf($attachment->Id, $attachment->fields);
+            $exist = $this->em->createQuery(
+                "SELECT a FROM Attachment a WHERE a.sf_id='$attachment->Id'"
+            );
+            if (!$exist)
+            {
+                $this->em->persist($a);
+            } else {
+                foreach ($exist as $me)
+                    $this->em->remove($me);
+                $this->em->persist($a);
+            }
+        }
+        $this->em->flush();
+    }
+
+    /**
+     * Gather Child and Group SF ids and pull attachments with
+     * those as a ParentId
+     */
+    function import_sf_attachments()
+    {
+        $this->log->debug("SFImport: CacheAtachments");
+        $cqb = $this->em->createQueryBuilder();
+        $gqb = $this->em->createQueryBuilder();
+        // SELECT c.sf_if FROM CacheChild c WHERE c.sf_id IS NOT NULL
+        $cqb->select('c.sf_id')
+           ->from("CacheChild", "c")
+           ->where($cqb->expr()->isNotNull("c.sf_id"));
+        // SELECT g.sf_if FROM CacheGroup g WHERE cgsf_id IS NOT NULL
+        $gqb->select('g.sf_id')
+           ->from("CacheGroup", "g")
+           ->where($gqb->expr()->isNotNull("g.sf_id"));
+
+        // Query cached results
+        $cache_results = $cqb->getQuery()->getResult() + $gqb->getQuery()->getResult();
+        $this->log->debug("Cache Result Count: " . count($cache_results));
+
+        $att_q = "SELECT Id,Name,BodyLength,ContentType,ParentId " .
+                 "FROM Attachment WHERE ParentId IN (";
+        $start_length = strlen($att_q);
+        $parent_ids = array();
+        foreach ($cache_results as $result)
+        {
+            $new_id = "'" . $result["sf_id"] . "'";
+            $id_list = array_merge($parent_ids + array($new_id));
+            // 1 - a trailing closed paren - ')'
+            $l = strlen($att_q . implode(",", $id_list) . ")");
+            if ($l < (20000 - strlen($new_id) - 1))
+            {
+                array_push($parent_ids, $new_id);
+            } else {
+                $this->import_sf_attachment_chunk($att_q, $parent_ids);
+                $parent_ids = array();
+            }
+        }
+        if (count($parent_ids))
+        {
+            $this->import_sf_attachment_chunk($att_q, $parent_ids);
+            $parent_ids = array();
+        }
     }
 
     /**
