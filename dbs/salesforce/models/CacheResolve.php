@@ -34,10 +34,7 @@ class CacheResolve
      */
     public function setLastChecked($lastChecked = "")
     {
-        if (!$lastChecked)
-            $this->LastChecked = strtotime("now");
-        else
-            $this->LastChecked = $lastChecked;
+        $this->LastChecked = date_create()->format(DateTime::ATOM);
 
         return $this;
     }

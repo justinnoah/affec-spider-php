@@ -3,4 +3,4 @@ CacheResolve:
     table: SFCheck
     id:
         LastChecked:
-            type: datetime
+            type: string

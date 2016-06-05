@@ -22,6 +22,7 @@ use CacheAttachment;
 use CacheChild;
 use CacheContact;
 use CacheGroup;
+use CacheResolve;
 
 /**
  * Crawler export into Salesforce Database
@@ -73,6 +74,15 @@ class Salesforce
         );
         $this->log->debug("Logged Into SF");
 
+        $lastPulled = $this->em->createQuery(
+            "SELECT r FROM CacheResolve r ORDER BY r.LastChecked DESC")->getResult();
+        if (!$lastPulled)
+        {
+            $this->lm_iso = "";
+        } else {
+            $this->lm_iso = "LastModifiedDate > " . $lastPulled[0]->getLastChecked();
+        }
+
         // Grab Contacts
         $where = "WHERE MailingState='" . CURRENT_STATE . "'";
         $this->import_from_sf("CacheContact", $where);
@@ -85,6 +95,13 @@ class Salesforce
         // Grab Attachments
 
         $this->log->debug("Flushing SF Data");
+        foreach ($lastPulled as $lp)
+        {
+            $this->em->remove($lp);
+        }
+        $cr = new CacheResolve();
+        $cr->setLastChecked();
+        $this->em->persist($cr);
         $this->em->flush();
     }
 
@@ -128,6 +145,18 @@ class Salesforce
             "CacheContact" => "Contact",
             "CacheGroup" => "Sibling_Group__c"
         );
+
+        // Before SF is hit, let's figure out how
+        // far back in time we need to search
+        if ($this->lm_iso)
+        {
+            if ($where)
+            {
+                $where .= " AND $this->lm_iso";
+            } else {
+                $where .= " WHERE $this->lm_iso";
+            }
+        }
 
         // Build the field list needed for the data we track given $type
         $fields = array_keys($type::sf_map);
