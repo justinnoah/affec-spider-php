@@ -23,18 +23,20 @@ class CacheAttachment
      * @var array sf_map  Attachment -> CacheAttachment
      */
     const parsed_map = array(
+        "BodyLength" => "setBodyLength",
         "Content" => "setContent",
         "ContentType" => "setContentType",
+        "Name" => "setName",
         "Profile" => "setProfile",
-        "BodyLength" => "setBodyLength",
     );
 
     /**
      * @var array sf_map  SF -> CacheAttachment
      */
     const sf_map = array(
-        "Content-Type" => "setContentType",
         "BodyLength" => "setBodyLength",
+        "ContentType" => "setContentType",
+        "Name" => "setName",
         "ParentId" => "setParentId",
     );
 
@@ -329,5 +331,30 @@ class CacheAttachment
         $attachment->setSfId($id);
         return $attachment;
     }
+
+    /**
+     * @ORM\PreUpdate
+     */
+    public function validateUpdate()
+    {
+        $this->validate();
+    }
+
+    /**
+     * @ORM\PrePersist
+     */
+    public function validatePersist()
+    {
+        $this->validate();
+    }
+
+    /**
+     * Simple validation for Attachments
+     */
+     function validate()
+     {
+         if (!$this->ParentId && !$this->Content)
+             throw Exception("ParentId and Content cannot both be NULL");
+     }
 }
 ?>

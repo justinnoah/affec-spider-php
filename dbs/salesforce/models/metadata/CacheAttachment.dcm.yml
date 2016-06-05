@@ -13,15 +13,18 @@ CacheAttachment:
             type: integer
         Content:
             type: blob
+            nullable: true
         ContentType:
             type: string
+            nullable: true
         ParentId:
             type: string
+            nullable: true
         sf_id:
             type: string
     indexes:
         att_index:
-            columns: [Name, sf_id]
+            columns: [ParentId, sf_id]
     manyToOne:
         child:
             targetEntity: CacheChild
@@ -29,3 +32,6 @@ CacheAttachment:
         group:
             targetEntity: CacheGroup
             mappedBy: attachments
+    lifecycleCallbacks:
+        preUpdate: [ validateUpdate ]
+        prePersist: [ validatePersist ]
