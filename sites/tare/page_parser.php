@@ -384,6 +384,15 @@ class PageParser
 
         // Set the Bio text to our object
         $this->data->set_value("Biography", trim($bioText));
+
+        // :XXX: This is why things break
+        $case_number_selector = array(
+            "Child" => "div#pageContent > div:nth-child(1) > div:nth-child(2) > div:nth-child(2) > span",
+            "SiblingGroup" => "div#pageContent > div:nth-child(1) > div:nth-child(6) > div:nth-child(2)",
+        );
+
+        $case_nomber = $this->soup->querySelector($case_number_selector[$this->type]);
+        $this->data->set_value("CaseNumber", trim($case_number));
     }
 
     /**
@@ -428,6 +437,7 @@ class PageParser
         $this->parse_this_data_info(array(), "s");
 
         // Parse the individual children in the sibling group
+        // :XXX: THIS STUPID MAGIC NUMBER STUFF IS WHAT BREAKS!
         $siblings_list_selector = "div#pageContent > div:nth-child(1) > div:nth-child(5)  span + a";
         $child_links = $this->soup->querySelectorAll($siblings_list_selector);
         $aLen = $child_links->length;
