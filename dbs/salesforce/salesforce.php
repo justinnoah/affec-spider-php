@@ -109,6 +109,27 @@ class Salesforce
         // Persist the new date
         $this->em->persist($cr);
         $this->em->flush();
+
+        // Find Largest Bulletin Number currently in use
+        $bltns = $this->em->createQueryBuilder()
+                          ->select("c.Adoption_Bulletin_Number__c")
+                          ->from("CacheChild", "c")
+                          ->getQuery()
+                          ->getResult();
+        // Start with 0
+        $this->current_bltn = 0;
+        // Go through them all replacing the current with a new highest
+        foreach ($bltns as $bltn)
+        {
+            // Parse the bulletin down to an INT
+            $possible_bltn = intval(ltrim(
+                $bltn["Adoption_Bulletin_Number__c"], CURRENT_STATE_SHORT
+            ));
+            $this->current_bltn = max($this->current_bltn, $possible_bltn);
+        }
+
+        $this->log->debug("Current Bulletin Max: " . print_r($this->current_bltn, true));
+        exit();
     }
 
     /**
@@ -203,9 +224,13 @@ class Salesforce
      */
     function import_sf_attachment_chunk($q_start, $ids)
     {
-        $q = $q_start . implode(",", $ids) . ")";
-        $this->log->debug("Attachment Chunk Query Length: " . strlen($q));
+        // Query and List of IDs to search within
+        $q = $q_start . implode(",", $ids);
+        // Close the list then apply the lm_iso if exists
+        $this->lm_iso ? $q .= ") AND $this->lm_iso" : $q .= ")";
+        // Query it
         $attachments = $this->sfQueryAll($q);
+        // Do things with the attachments
         foreach ($attachments as $attachment)
         {
             $a = \CacheAttachment::from_sf($attachment->Id, $attachment->fields);
@@ -257,8 +282,8 @@ class Salesforce
             $new_id = "'" . $result["sf_id"] . "'";
             $id_list = array_merge($parent_ids + array($new_id));
             // 1 - a trailing closed paren - ')'
-            $l = strlen($att_q . implode(",", $id_list) . ")");
-            if ($l < (20000 - strlen($new_id)))
+            $l = strlen($att_q . implode(",", $id_list) . "$this->lm_iso");
+            if ($l < (20000 - strlen($new_id) - strlen("$this->lm_iso")))
             {
                 array_push($parent_ids, $new_id);
             } else {
