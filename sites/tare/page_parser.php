@@ -391,7 +391,7 @@ class PageParser
             "SiblingGroup" => "div#pageContent > div:nth-child(1) > div:nth-child(6) > div:nth-child(2)",
         );
 
-        $case_nomber = $this->soup->querySelector($case_number_selector[$this->type]);
+        $case_number = $this->soup->querySelector($case_number_selector[$this->type]);
         $this->data->set_value("CaseNumber", trim($case_number));
     }
 
