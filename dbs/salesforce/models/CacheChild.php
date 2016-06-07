@@ -27,8 +27,8 @@ class CacheChild
         "AdoptionRecruitment" => "setRecruitmentStatusC",
         "Biography" => "setChildSBioC",
         "BulletinDate" => "",
-        "BulletinNumber" => "",
-        "CaseNumber" => "",
+        "BulletinNumber" => "setAdoptionBulletinNumberC",
+        "CaseNumber" => "setCaseNumberC",
         "Ethnicity" => "setChildSNationalityC",
         "Gender" => "setChildSSexC",
         "ImportedFrom" => "",
@@ -47,6 +47,7 @@ class CacheChild
      */
     const sf_map = array(
         "Adoption_Bulletin_Number__c" => "setAdoptionBulletinNumberC",
+        "Case_Number__c" => "setCaseNumberC",
         "Child_s_Bio__c" => "setChildSBioC",
         "Child_s_Birthdate__c" => "setChildSBirthdateC",
         "Child_s_Nationality__c" => "setChildSNationalityC",
@@ -71,6 +72,11 @@ class CacheChild
      * @var string
      */
     private $Adoption_Bulletin_Number__c;
+
+    /**
+     * @var string
+     */
+    private $Case_Number__c;
 
     /**
      * @var string
@@ -192,6 +198,30 @@ class CacheChild
     public function getAdoptionBulletinNumberC()
     {
         return $this->Adoption_Bulletin_Number__c;
+    }
+
+    /**
+     * Set Case_Numer__c
+     *
+     * @param string $caseNumberC
+     *
+     * @return CacheChild
+     */
+    public function setCaseNumberC($caseNumberC)
+    {
+        $this->Case_number__c = $caseNumberC;
+
+        return $this;
+    }
+
+    /**
+     * Get Case_Number__c
+     *
+     * @return string
+     */
+    public function getCaseNumberC()
+    {
+        return $this->Case_Number__c;
     }
 
     /**
