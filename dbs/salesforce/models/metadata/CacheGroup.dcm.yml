@@ -19,30 +19,6 @@ CacheGroup:
         Children_s_Bio__c:
             type: string
             nullable: true
-        Child_1_First_Name__c:
-            type: string
-            nullable: true
-        Child_2_First_Name__c:
-            type: string
-            nullable: true
-        Child_3_First_Name__c:
-            type: string
-            nullable: true
-        Child_4_First_Name__c:
-            type: string
-            nullable: true
-        Child_5_First_Name__c:
-            type: string
-            nullable: true
-        Child_6_First_Name__c:
-            type: string
-            nullable: true
-        Child_7_First_Name__c:
-            type: string
-            nullable: true
-        Child_8_First_Name__c:
-            type: string
-            nullable: true
         Children_s_Webpage__c:
             type: string
             nullable: true
@@ -73,6 +49,23 @@ CacheGroup:
         attachments:
             targetEntity: CacheAttachment
             mappedBy: group
+    oneToOne:
+        Child_1_First_Name__c:
+            targetEntity: CacheChild
+        Child_2_First_Name__c:
+            targetEntity: CacheChild
+        Child_3_First_Name__c:
+            targetEntity: CacheChild
+        Child_4_First_Name__c:
+            targetEntity: CacheChild
+        Child_5_First_Name__c:
+            targetEntity: CacheChild
+        Child_6_First_Name__c:
+            targetEntity: CacheChild
+        Child_7_First_Name__c:
+            targetEntity: CacheChild
+        Child_8_First_Name__c:
+            targetEntity: CacheChild
     lifecycleCallbacks:
         preUpdate: [ validateUpdate ]
         prePersist: [ validatePersist ]
