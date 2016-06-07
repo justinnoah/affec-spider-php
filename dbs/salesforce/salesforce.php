@@ -59,6 +59,16 @@ class Salesforce
 
         // Import from SF
         $this->import_sf_into_cache();
+
+        /* These are for reporting purposes */
+        // List of children with possible changes
+        $this->children_with_updates = array();
+        // List of sibling groups with possibl chianges
+        $this->groups_with_updates = array();
+        // List of new children
+        $this->children_added = array();
+        // List of new sibling groups
+        $this->groups_added = array();
     }
 
     /**
@@ -127,9 +137,8 @@ class Salesforce
             ));
             $this->current_bltn = max($this->current_bltn, $possible_bltn);
         }
-
-        $this->log->debug("Current Bulletin Max: " . print_r($this->current_bltn, true));
-        exit();
+        // Increment by one for next use
+        $this->current_bltn += 1;
     }
 
     /**
@@ -303,8 +312,8 @@ class Salesforce
             $new_id = "'" . $result["sf_id"] . "'";
             $id_list = array_merge($parent_ids + array($new_id));
             // 1 - a trailing closed paren - ')'
-            $l = strlen($att_q . implode(",", $id_list) . "$this->lm_iso");
-            if ($l < (20000 - strlen($new_id) - strlen("$this->lm_iso")))
+            $l = strlen($att_q . implode(",", $id_list) . ") AND $this->lm_iso");
+            if ($l < (20000 - strlen($new_id) - strlen(") AND $this->lm_iso")))
             {
                 array_push($parent_ids, $new_id);
             } else {
@@ -352,11 +361,52 @@ class Salesforce
     /**
      * Import parsed child as a cache object
      *
-     * @param array $child array to convert
+     * @param mixed $child array to convert
+     * @param string $bltn given bulletin number if part of a group
+     * @param array $others list of other siblings' names
      */
-    protected function upsert_parsed_child($child)
+    protected function upsert_parsed_child($child, $bltn="", $others=array())
     {
-        $this->em->persist(CacheChild::from_parsed($child));
+        // Set $child["Siblings"] if part of a Sibling Group
+        if ($others)
+        {
+            // Remove this Child's name from the list of Siblings
+            unset($others[$child["Name"]]);
+            // Add the sibling names to $child["Siblings"]
+            $child["Siblings"] = implode(", ", $others);
+            $child["BulletinNumber"] = $bltn;
+        } else {
+            // Create a bulletin number for the child
+            $new_bltn = CURRENT_STATE_SHORT . $this->current_bltn;
+            $child->set_value("BulletinNumber") = $new_bltn;
+
+            // If this is an only child and *NOT* a sibling group member
+            // Increase the bulletin number. otherwise the upsert sibling
+            // group method will handle the bump
+            $this->current_bltn += 1;
+        }
+
+        // Find an existing Child with a given TAREId
+        $qb = $this->em->createQueryBuilder();
+        $existing = $qb->select('c')
+                        ->from("CacheChild", "c")
+                        ->where("c.Case_Number__c = " . $child["CaseNumber"])
+                        ->getQuery()
+                        ->getResult();
+        // If one exists, add to list of children to check for updates
+        if ($existing)
+        {
+            array_push($this->children_with_updates, $child);
+            $c = $existing;
+        // If one doesn't exists, add to list of new children
+        } else {
+            // Create the new BLTN number
+            $db_child = CacheChild::from_parsed($child);
+            array_push($this->children_added, $db_child);
+            $c = $db_child;
+        }
+        // Return the child object. Needed for SiblingGroups
+        return $c;
     }
 
     /**
@@ -366,7 +416,72 @@ class Salesforce
      */
     protected function upsert_parsed_group($group)
     {
-        $this->em->persist(CacheGroup::from_parsed($group));
+        // Find an existing Child with a given TAREId
+        $qb = $this->em->createQueryBuilder();
+        $existing = $qb->select('g')
+                        ->from("CacheGroup", "g")
+                        ->where("g.Case_number__c = " . $group["CaseNumber"])
+                        ->getQuery()
+                        ->getResult();
+
+        // Children in the Sibling Group
+        $children_in_group = $group->get_value("RelatedChildren");
+
+        // Sort Siblings by name
+        uksort($childre_in_group, function($a, $b) {
+            $n = array($a->get_value("Name"), $b->get_value("Name"));
+            natsort($n);
+            $first = $n[0];
+            if ($a->get_value("Name") == $first)
+                return -1;
+            else
+                return 1;
+        });
+
+        // Set the sibling group's name
+        $names = array();
+        foreach ($children_in_group as $child)
+        {
+            array_push($names, $child->get_value("Name"));
+        }
+        $group->set_value("Name", implode(", ", $names));
+
+        // Cache the parsed children
+        if ($existing)
+        {
+            $bltn = $existing->getBulletinNumberC();
+        } else {
+            $bltn = CURRENT_STATE_SHORT . $this->current_bltn;
+            $this->current_bltn += 1;
+        }
+        // Bulletin Number Addition
+        $bulletin_addition = array("", "B", "C", "D", "E", "F", "G", "H");
+        // We can only handle a max of 8 Siblings in a group....
+        $sibling_count = count($children_in_group) <= 8 ? count($children_ingroup) : 8;
+        // Cache them
+        for ($i=0; i<$sibling_count; $i++)
+        {
+            $sibling_bltn = $bltn . $bulletin_addition[$i];
+            $sibling_cached = $this->usert_parsed_child(
+                $children_in_group[$i], $sibling_bltn, $names
+            );
+            $sn = $i+1;
+            $group["Sibling$sn"] = $sibling_cached;
+        }
+        // Set the groups bulletin number as the first sibling's
+        $group["BulletinNumber"] = $group["Sibling1"]->getAdoptionBulletinNumberC();
+        // Play nice and increment the bullletin counter
+        $this->current_bltn += 1;
+
+        // If one exists, add to list of children to check for updates
+        if ($existing)
+        {
+            array_push($this->groups_with_updates, $group);
+        // If one doesn't exists, add to list of new children
+        } else {
+            $db_group = CacheGroup::from_parsed($group);
+            array_push($this->groups_added, $db_group);
+        }
     }
 
     /**
