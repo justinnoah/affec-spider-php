@@ -479,8 +479,7 @@ class CacheContact
      */
     public static function from_sf($id, $sob)
     {
-        $arr = get_object_vars($sob);
-        $contact = self::from_map($arr, self::sf_map);
+        $contact = self::from_map($sob, self::sf_map);
         $contact->setSfId($id);
         return $contact;
     }

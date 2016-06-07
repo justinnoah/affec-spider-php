@@ -202,8 +202,29 @@ class Salesforce
                 "SELECT c FROM $type c WHERE c.sf_id = '$sf_record->Id'"
             )->getResult();
 
+            $fields = get_object_vars($sf_record->fields);
+
+            // Bond Siblings to Groups via FK
+            if ($type == "CacheGroup")
+            {
+                for ($i=1; $i<9; $i++)
+                {
+                    $c = "Child_" . $i ."_First_Name__c";
+                    if ($fields[$c])
+                    {
+                        $qb = $this->em->createQueryBuilder();
+                        $fields[$c] = $qb
+                            ->select('c')
+                            ->from("CacheChild", "c")
+                            ->where("c.sf_id = '$fields[$c]'")
+                            ->getQuery()
+                            ->getResult()[0];
+                    }
+                }
+            }
+
             // Add or replace
-            $new_cache_obj = $type::from_sf($sf_record->Id, $sf_record->fields);
+            $new_cache_obj = $type::from_sf($sf_record->Id, $fields);
             if (!$exist)
             {
                 $this->em->persist($new_cache_obj);

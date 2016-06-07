@@ -32,14 +32,14 @@ class CacheGroup
         "RecruitmentStatus" => "setRecruitmentStatusC",
         "RecruitmentUpdate" => "setRecruitmentUpdateC",
         "Region" => "setDistrictC",
-        'Sibling1' => "setChild1FirstNameC",
-        'Sibling2' => "setChild2FirstNameC",
-        'Sibling3' => "setChild3FirstNameC",
-        'Sibling4' => "setChild4FirstNameC",
-        'Sibling5' => "setChild5FirstNameC",
-        'Sibling6' => "setChild6FirstNameC",
-        'Sibling7' => "setChild7FirstNameC",
-        'Sibling8' => "setChild8FirstNameC",
+        "Sibling1" => "setChild1FirstNameC",
+        "Sibling2" => "setChild2FirstNameC",
+        "Sibling3" => "setChild3FirstNameC",
+        "Sibling4" => "setChild4FirstNameC",
+        "Sibling5" => "setChild5FirstNameC",
+        "Sibling6" => "setChild6FirstNameC",
+        "Sibling7" => "setChild7FirstNameC",
+        "Sibling8" => "setChild8FirstNameC",
         "State" => "setStateC",
     );
     /**
@@ -49,14 +49,14 @@ class CacheGroup
         "Bulletin_Number__c" => "setBulletinNumberC",
         "Case_Number__c" => "setCaseNumberC",
         "Caseworker__c" => "setCaseWorkerC",
-        'Child_1_First_Name__c' => "setChild1FirstNameC",
-        'Child_2_First_Name__c' => "setChild2FirstNameC",
-        'Child_3_First_Name__c' => "setChild3FirstNameC",
-        'Child_4_First_Name__c' => "setChild4FirstNameC",
-        'Child_5_First_Name__c' => "setChild5FirstNameC",
-        'Child_6_First_Name__c' => "setChild6FirstNameC",
-        'Child_7_First_Name__c' => "setChild7FirstNameC",
-        'Child_8_First_Name__c' => "setChild8FirstNameC",
+        "Child_1_First_Name__c" => "setChild1FirstNameC",
+        "Child_2_First_Name__c" => "setChild2FirstNameC",
+        "Child_3_First_Name__c" => "setChild3FirstNameC",
+        "Child_4_First_Name__c" => "setChild4FirstNameC",
+        "Child_5_First_Name__c" => "setChild5FirstNameC",
+        "Child_6_First_Name__c" => "setChild6FirstNameC",
+        "Child_7_First_Name__c" => "setChild7FirstNameC",
+        "Child_8_First_Name__c" => "setChild8FirstNameC",
         "Children_s_Bio__c" => "setChildrenSBioC",
         "Children_s_Webpage__c" => "setChildrenSWebpageC",
         "District__c" => "setDistrictC",
@@ -803,8 +803,7 @@ class CacheGroup
      */
     public static function from_sf($id, $sob)
     {
-        $arr = get_object_vars($sob);
-        $group = self::from_map($arr, self::sf_map);
+        $group = self::from_map($sob, self::sf_map);
         $group->setSfId($id);
         return $group;
     }

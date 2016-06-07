@@ -326,8 +326,7 @@ class CacheAttachment
      */
     public static function from_sf($id, $sob)
     {
-        $arr = get_object_vars($sob);
-        $attachment = self::from_map($arr, self::sf_map);
+        $attachment = self::from_map($sob, self::sf_map);
         $attachment->setSfId($id);
         return $attachment;
     }

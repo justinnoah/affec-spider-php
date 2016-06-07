@@ -11,6 +11,7 @@ CacheChild:
             type: string
         Case_Number__c:
             type: string
+            nullable: true
         Child_s_Bio__c:
             type: text
             nullable: true

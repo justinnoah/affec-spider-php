@@ -680,8 +680,7 @@ class CacheChild
      */
     public static function from_sf($id, $sob)
     {
-        $arr = get_object_vars($sob);
-        $child = self::from_map($arr, self::sf_map);
+        $child = self::from_map($sob, self::sf_map);
         $child->setSfId($id);
         return $child;
     }
