@@ -17,6 +17,9 @@ namespace Crawler\Databases\Salesforce;
 
 
 use Crawler\DataTypes\AllChildren;
+use Crawler\DataTypes\Attachment;
+use Crawler\DataTypes\Child;
+use Crawler\DataTypes\SiblingGroup;
 require("dbs/salesforce/cache_db.php");
 use CacheAttachment;
 use CacheChild;
@@ -361,7 +364,7 @@ class Salesforce
     /**
      * Import parsed child as a cache object
      *
-     * @param mixed $child array to convert
+     * @param Child $child array to convert
      * @param string $bltn given bulletin number if part of a group
      * @param array $others list of other siblings' names
      */
@@ -371,15 +374,14 @@ class Salesforce
         if ($others)
         {
             // Remove this Child's name from the list of Siblings
-            unset($others[$child["Name"]]);
+            unset($others[$child->get_value("Name")]);
             // Add the sibling names to $child["Siblings"]
-            $child["Siblings"] = implode(", ", $others);
-            $child["BulletinNumber"] = $bltn;
+            $child->set_value("Siblings", implode(", ", $others));
+            $child->set_value("BulletinNumber", $bltn);
         } else {
             // Create a bulletin number for the child
             $new_bltn = CURRENT_STATE_SHORT . $this->current_bltn;
-            $child->set_value("BulletinNumber") = $new_bltn;
-
+            $child->set_value("BulletinNumber", $new_bltn);
             // If this is an only child and *NOT* a sibling group member
             // Increase the bulletin number. otherwise the upsert sibling
             // group method will handle the bump
@@ -387,24 +389,34 @@ class Salesforce
         }
 
         // Find an existing Child with a given TAREId
-        $qb = $this->em->createQueryBuilder();
-        $existing = $qb->select('c')
-                        ->from("CacheChild", "c")
-                        ->where("c.Case_Number__c = " . $child["CaseNumber"])
-                        ->getQuery()
-                        ->getResult();
+        $existing = $this->em->createQueryBuilder()
+                    ->select('c')
+                    ->from("CacheChild", "c")
+                    ->where("c.Case_Number__c = " . $child->get_value("CaseNumber"))
+                    ->getQuery()
+                    ->getResult();
+
         // If one exists, add to list of children to check for updates
         if ($existing)
         {
             array_push($this->children_with_updates, $child);
-            $c = $existing;
+            $c = $existing[0];
         // If one doesn't exists, add to list of new children
         } else {
             // Create the new BLTN number
-            $db_child = CacheChild::from_parsed($child);
+            $db_child = CacheChild::from_parsed($child->to_array());
+            $this->em->persist($db_child);
             array_push($this->children_added, $db_child);
             $c = $db_child;
         }
+
+        // Attachment things
+        $attachments = $child->get_value("Attachments");
+        foreach ($attachments as $attachment)
+        {
+            $this->upsert_parsed_attachment($attachment, $c, null);
+        }
+
         // Return the child object. Needed for SiblingGroups
         return $c;
     }
@@ -412,7 +424,7 @@ class Salesforce
     /**
      * Import parsed group as a cache object
      *
-     * @param array $group array to convert
+     * @param SiblingGroup $group array to convert
      */
     protected function upsert_parsed_group($group)
     {
@@ -466,10 +478,13 @@ class Salesforce
                 $children_in_group[$i], $sibling_bltn, $names
             );
             $sn = $i+1;
-            $group["Sibling$sn"] = $sibling_cached;
+            $group->set_value("Sibling$sn", $sibling_cached);
         }
         // Set the groups bulletin number as the first sibling's
-        $group["BulletinNumber"] = $group["Sibling1"]->getAdoptionBulletinNumberC();
+        $groups->set_value(
+            "BulletinNumber",
+            $groups->get_value("Sibling1")->getAdoptionBulletinNumberC()
+        );
         // Play nice and increment the bullletin counter
         $this->current_bltn += 1;
 
@@ -477,21 +492,40 @@ class Salesforce
         if ($existing)
         {
             array_push($this->groups_with_updates, $group);
+            $g = $existing[0];
         // If one doesn't exists, add to list of new children
         } else {
-            $db_group = CacheGroup::from_parsed($group);
+            $db_group = CacheGroup::from_parsed($group->to_array());
+            $this->em->persist($db_group);
             array_push($this->groups_added, $db_group);
+            $g = $db_group;
         }
+
+        // Attachment things
+        $attachments = $group->get_value("Attachments");
+        foreach ($attachments as $attachment)
+        {
+            $this->upsert_parsed_attachment($attachment, null, $g);
+        }
+
     }
 
     /**
      * Import parsed attachment as a cache object
      *
-     * @param array $attachment array to convert
+     * @param Attachment $attachment array to convert
+     * @param CacheChild $child child owner of the attachment
+     * @param CacheGroup $group group owner of the attechment
      */
-    protected function upsert_parsed_attachment($attachment)
+    protected function upsert_parsed_attachment($attachment, $child=null, $group=null)
     {
-        $this->em->persist(CacheAttachment::from_parsed($attachment));
+        $arr = $attachment->to_array();
+        if ($child)
+            $arr["child"] = $child;
+        if ($group)
+            $arr["group"] = $group;
+        $c_at = CacheAttachment::from_parsed($arr);
+        $this->em->persist($c_at);
     }
 
     /**
@@ -501,5 +535,4 @@ class Salesforce
     {
     }
 }
-
 ?>
