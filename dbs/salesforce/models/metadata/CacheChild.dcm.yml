@@ -51,7 +51,7 @@ CacheChild:
             type: string
     indexes:
         child_index:
-            columns: [Adoption_Bulletin_Number__c, Name, sf_id]
+            columns: [Adoption_Bulletin_Number__c, Case_Number__c, Name, sf_id]
     manyToOne:
         contact:
             targetEntity: CacheContact

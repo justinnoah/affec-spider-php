@@ -484,4 +484,3 @@ class CacheContact
         return $contact;
     }
 }
-?>

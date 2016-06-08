@@ -684,5 +684,9 @@ class CacheChild
         $child->setSfId($id);
         return $child;
     }
+
+    function __to_string()
+    {
+        return $this->Name . ": " . $this->Link_to_Child_s_Page__c;
+    }
 }
-?>

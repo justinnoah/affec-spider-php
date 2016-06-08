@@ -28,6 +28,8 @@ class CacheAttachment
         "ContentType" => "setContentType",
         "Name" => "setName",
         "Profile" => "setProfile",
+        "child" => "setChild",
+        "group" => "setGroup",
     );
 
     /**
@@ -69,6 +71,11 @@ class CacheAttachment
      * @var string
      */
     private $ParentId;
+
+    /**
+     * @var bool
+     */
+    private $Profile = false;
 
     /**
      * @var string
@@ -153,6 +160,7 @@ class CacheAttachment
     public function setContent($content)
     {
         $this->Content = $content;
+        $this->setName(md5($content));
 
         return $this;
     }
@@ -213,6 +221,30 @@ class CacheAttachment
     public function getParentId()
     {
         return $this->ParentId;
+    }
+
+    /**
+     * Set profile
+     *
+     * @param bool $profile
+     *
+     * @return CacheAttachment
+     */
+    public function setProfile($profile)
+    {
+        $this->Profile = $profile;
+
+        return $this;
+    }
+
+    /**
+     * Get profile
+     *
+     * @return bool
+     */
+    public function getProfile()
+    {
+        return $this->Profile;
     }
 
     /**
@@ -300,7 +332,9 @@ class CacheAttachment
         {
             if (array_key_exists($key, $map) && $map[$key])
             {
+                // Attachment property setter (e.g. setContent)
                 $prop = $map[$key];
+                // Set the property's value (e.g. $t->setContent($value))
                 $t->$prop($value);
             }
         }

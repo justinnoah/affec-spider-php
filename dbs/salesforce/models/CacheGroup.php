@@ -808,4 +808,3 @@ class CacheGroup
         return $group;
     }
 }
-?>

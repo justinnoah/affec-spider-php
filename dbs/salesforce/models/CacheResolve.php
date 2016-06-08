@@ -49,4 +49,3 @@ class CacheResolve
         return $this->LastChecked;
     }
 }
-?>

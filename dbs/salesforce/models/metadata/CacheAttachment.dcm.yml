@@ -7,8 +7,6 @@ CacheAttachment:
             generator:
                 strategy: AUTO
     fields:
-        Name:
-            type: string
         BodyLength:
             type: integer
         Content:
@@ -17,11 +15,16 @@ CacheAttachment:
         ContentType:
             type: string
             nullable: true
+        Name:
+            type: string
         ParentId:
             type: string
             nullable: true
+        Profile:
+            type: boolean
         sf_id:
             type: string
+            nullable: true
     indexes:
         att_index:
             columns: [ParentId, sf_id]
