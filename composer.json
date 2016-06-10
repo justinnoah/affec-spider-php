@@ -3,19 +3,13 @@
     "description": "Crawl TARE Site to Import Data",
     "repositories": [
         {
-            "type": "git",
-            "url": "https://github.com/developerforce/Force.com-Toolkit-for-PHP.git",
-            "autoload": ["soapclient"]
-        },
-        {
             "type": "package",
             "package": {
-                "name": "developerforce/force.com-toolkit-for-php",
+                "name": "dist/force.com-toolkit-for-php",
                 "version": "20.0.10",
-                "source": {
-                    "url": "https://github.com/developerforce/Force.com-Toolkit-for-PHP.git",
-                    "type": "git",
-                    "reference": "tags/v20.0.10"
+                "dist": {
+                    "url": "https://github.com/developerforce/Force.com-Toolkit-for-PHP/archive/v20.0.10.tar.gz",
+                    "type": "tar"
                 },
                 "autoload": {
                     "classmap": ["soapclient"]
@@ -24,12 +18,13 @@
         }
     ],
     "require": {
-        "developerforce/force.com-toolkit-for-php": "20.0.10",
+        "dist/force.com-toolkit-for-php": "20.0.10",
         "doctrine/orm": "2.5.*",
         "fluentdom/fluentdom": "5.3",
         "fluentdom/selectors-phpcss": "1.0",
         "monolog/monolog": "1.19",
-        "symfony/yaml": "2.*"
+        "symfony/yaml": "2.*",
+        "phpmailer/phpmailer": "^5.2"
     },
     "license": "Apache 2.0",
     "authors": [
