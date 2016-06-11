@@ -20,6 +20,7 @@ use Crawler\DataTypes\AllChildren;
 use Crawler\DataTypes\Attachment;
 use Crawler\DataTypes\Child;
 use Crawler\DataTypes\SiblingGroup;
+require("dbs/salesforce/tools.php");
 require("dbs/salesforce/cache_db.php");
 use CacheAttachment;
 use CacheChild;
@@ -257,6 +258,7 @@ class Salesforce
      */
     function import_sf_attachment_chunk($q_start, $ids)
     {
+        $this->log->debug("SFImport: Attachments");
         // Query and List of IDs to search within
         $q = $q_start . implode(",", $ids);
         // Close the list then apply the lm_iso if exists
@@ -358,7 +360,57 @@ class Salesforce
      */
     protected function upsert_parsed_contact($contact)
     {
-        $this->em->persist(CacheContact::from_parsed($contact));
+        $this->log->debug("What am I: " . print_r($contact, true));
+
+        // Transform Data
+        $c_dict = $contact->to_array();
+        $name = parse_name($c_dict["Name"]);
+        $addr = parse_address($c_dict["Address"]);
+        $email = mailparse_rfc822_parse_addresses($c_dict["Email"]);
+        $phone = $c_dict["PhoneNumber"];
+        $region = $c_dict["Region"];
+
+        // And create an array to import as a CacheContact
+        $cache_array = array(
+            "FirstName" => $name["FirstName"],
+            "LastName" => $name["LastName"],
+            "MailingPostalCode" => $addr["MailingPostalCode"],
+            "MailingState" => $addr["MailingState"],
+            "MailingCity" => $addr["MailingCity"],
+            "MailingStreet" => $addr["MailingStreet"],
+            "Email" => $email
+        );
+
+        // Find an existing Child with a given TAREId
+        $q_b = $this->em->createQueryBuilder();
+        $existing = $q_b
+            ->select('c')
+            ->from("CacheContact", "c")
+            ->where($q_b->expr()->orX(
+                $q_b->expr()-andX(
+                    $q_b->expr()->eq('c.FirstName', $name["FirstName"]),
+                    $q_b->expr()->eq('c.LastName', $name["LastName"]),
+                    $q_b->expr()->eq('c.Email', $email)
+                ),
+                $q_b->expr()-andX(
+                    $q_b->expr()->eq('c.FirstName', $name["FirstName"]),
+                    $q_b->expr()->eq('c.LastName', $name["LastName"]),
+                    $q_b->expr()->eq('c.MailingPostalCode', $address["MailingPostalCode"]),
+                    $q_b->expr()->eq('c.MailingState', $address["MailingState"])
+                )
+            ))
+            ->getQuery()
+            ->getResult();
+
+        if (count($existing) > 0)
+        {
+            $ret_contact = $existing[0];
+        } else {
+            $ret_contact = CacheContact::from_parsed($cache_array);
+            $this->em->persist($ret_contact);
+        }
+
+        return $ret_contact;
     }
 
     /**
