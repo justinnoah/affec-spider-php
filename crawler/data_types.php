@@ -123,14 +123,14 @@ class DType implements SpiderCommonInterface
     /**
      * Set a data point forAthe guarded array
      *
-     * @param string $slot is a valid key for the guarded array
-     * @param mixed $data is the value to set for the slot
+     * @param string $key a valid key for the guarded array
+     * @param mixed $data he value to set for the key
      */
-    function set_value($slot, $data)
+    function set_value($key, $data)
     {
-        if (in_array($slot, $this->allowed_keys, true))
+        if (in_array($key, $this->allowed_keys))
         {
-            $this->guarded_array[$slot] = $data;
+            $this->guarded_array[$key] = $data;
         } else {
             $cls = get_class($this);
             error_log("Cannot use $slot in a(n) $cls object.");
@@ -143,22 +143,22 @@ class DType implements SpiderCommonInterface
      * @param string $key of guarded array
      * @return mixed value
      */
-     function get_value($key)
-     {
-         if (in_array($key, $this->allowed_keys))
-         {
-             if (in_array($key, array_keys($this->guarded_array)))
-             {
-                 return $this->guarded_array[$key];
-             } else {
-                 $this->guarded_array[$key] = "";
-                 return $this->guarded_array[$key];
-             }
-         } else {
-             $cls = get_class($this);
-             error_log("$key is not a valid $cls key");
-         }
-     }
+    function get_value($key)
+    {
+        if (in_array($key, $this->allowed_keys))
+        {
+            if (in_array($key, array_keys($this->guarded_array)))
+            {
+                return $this->guarded_array[$key];
+            } else {
+                $this->guarded_array[$key] = "";
+                return $this->guarded_array[$key];
+            }
+        } else {
+            $cls = get_class($this);
+            error_log("$key is not a valid $cls key");
+        }
+    }
 
     /**
      * Returns an Attachment as an unguarded array
