@@ -217,29 +217,31 @@ class Salesforce
 
             $fields = get_object_vars($sf_record->fields);
 
-            // Bond Siblings to Groups via FK
-            if ($type == "CacheGroup")
-            {
-                for ($i=1; $i<9; $i++)
-                {
-                    $c = "Child_" . $i ."_First_Name__c";
-                    if ($fields[$c])
-                    {
-                        $qb = $this->em->createQueryBuilder();
-                        $fields[$c] = $qb
-                            ->select('c')
-                            ->from("CacheChild", "c")
-                            ->where("c.sf_id = '$fields[$c]'")
-                            ->getQuery()
-                            ->getResult()[0];
-                    }
-                }
-            }
-
             // Add or replace
             $new_cache_obj = $type::from_sf($sf_record->Id, $fields);
             if (!$exist)
             {
+                // Bond Siblings to Groups via FK
+                if ($type == "CacheGroup")
+                {
+                    for ($i=1; $i<9; $i++)
+                    {
+                        $c = "Child_" . $i ."_First_Name__c";
+                        if ($fields[$c])
+                        {
+                            $qb = $this->em->createQueryBuilder();
+                            $x = $qb
+                                ->select('c')
+                                ->from("CacheChild", "c")
+                                ->where("c.sf_id = '$fields[$c]'")
+                                ->getQuery()
+                                ->getResult()[0];
+                            if ($x)
+                                $new_cache_obj->addSibling($x);
+                        }
+                    }
+                }
+
                 $this->em->persist($new_cache_obj);
             } else {
                 foreach ($exist as $me)
@@ -341,8 +343,12 @@ class Salesforce
     function import_all_children(AllChildren $all_children)
     {
         $children = $all_children->get_children();
+        $this->log->debug("Children Count: " . count($children));
         foreach ($children as $child)
         {
+            $this->log->debug(
+                "Upserting " . $child->get_value("Name") . ": " . $child->get_value("PageURL")
+            );
              $this->upsert_parsed_child($child);
         }
         $groups = $all_children->get_sibling_groups();
@@ -422,6 +428,14 @@ class Salesforce
      */
     protected function upsert_parsed_child($child, $bltn="", $others=array())
     {
+        $name = $child->get_value("Name");
+        $url = $child->get_value("PageURL");
+        $this->log->debug("$name: $url");
+
+        // Pull Contact and create a CacheContact from it
+        $child_contact = $child->get_value("CaseWorker");
+        $cache_contact = $this->upsert_parsed_contact($child_contact);
+
         // Set $child["Siblings"] if part of a Sibling Group
         if ($others)
         {
@@ -453,10 +467,12 @@ class Salesforce
         {
             array_push($this->children_with_updates, $child);
             $c = $existing[0];
+            $c->contact = $cache_contact;
         // If one doesn't exists, add to list of new children
         } else {
             // Create the new BLTN number
             $db_child = CacheChild::from_parsed($child->to_array());
+            $db_child->contact = $cache_contact;
             $this->em->persist($db_child);
             array_push($this->children_added, $db_child);
             $c = $db_child;
@@ -488,6 +504,10 @@ class Salesforce
                         ->getQuery()
                         ->getResult();
 
+        // Pull Contact and create a CacheContact from it
+        $child_contact = $child->get_value("CaseWorker");
+        $cache_contact = $this->upsert_parsed_contact($child_contact);
+
         // Children in the Sibling Group
         $children_in_group = $group->get_value("RelatedChildren");
 
@@ -510,14 +530,23 @@ class Salesforce
         }
         $group->set_value("Name", implode(", ", $names));
 
-        // Cache the parsed children
+        // If one exists, add to list of children to check for updates
         if ($existing)
         {
+            array_push($this->groups_with_updates, $group);
             $bltn = $existing->getBulletinNumberC();
+            $g = $existing[0];
+            $g->resetSiblings();
+        // If one doesn't exists, add to list of new children
         } else {
+            $db_group = CacheGroup::from_parsed($group->to_array());
+            $this->em->persist($db_group);
+            array_push($this->groups_added, $db_group);
+            $g = $db_group;
             $bltn = CURRENT_STATE_SHORT . $this->current_bltn;
             $this->current_bltn += 1;
         }
+
         // Bulletin Number Addition
         $bulletin_addition = array("", "B", "C", "D", "E", "F", "G", "H");
         // We can only handle a max of 8 Siblings in a group....
@@ -529,8 +558,7 @@ class Salesforce
             $sibling_cached = $this->usert_parsed_child(
                 $children_in_group[$i], $sibling_bltn, $names
             );
-            $sn = $i+1;
-            $group->set_value("Sibling$sn", $sibling_cached);
+            $g->addSibling($sibling_cached);
         }
         // Set the groups bulletin number as the first sibling's
         $groups->set_value(
@@ -540,26 +568,12 @@ class Salesforce
         // Play nice and increment the bullletin counter
         $this->current_bltn += 1;
 
-        // If one exists, add to list of children to check for updates
-        if ($existing)
-        {
-            array_push($this->groups_with_updates, $group);
-            $g = $existing[0];
-        // If one doesn't exists, add to list of new children
-        } else {
-            $db_group = CacheGroup::from_parsed($group->to_array());
-            $this->em->persist($db_group);
-            array_push($this->groups_added, $db_group);
-            $g = $db_group;
-        }
-
         // Attachment things
         $attachments = $group->get_value("Attachments");
         foreach ($attachments as $attachment)
         {
             $this->upsert_parsed_attachment($attachment, null, $g);
         }
-
     }
 
     /**
