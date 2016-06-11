@@ -585,13 +585,40 @@ class Salesforce
      */
     protected function upsert_parsed_attachment($attachment, $child=null, $group=null)
     {
+        // Convert to Array
         $arr = $attachment->to_array();
         if ($child)
             $arr["child"] = $child;
         if ($group)
             $arr["group"] = $group;
-        $c_at = CacheAttachment::from_parsed($arr);
-        $this->em->persist($c_at);
+
+        // Look for existing
+        $q_b = $this->em->createQueryBuilder();
+        $existing = $q_b
+            ->select('a')
+            ->from("Attachment", "a")
+            ->where($q_b->expr()->andX(
+                $q_b->expr()->orX(
+                    $q_b->expr()->andX(
+                        $q_b->expr()->isNull("a.child"),
+                        $q_b->expr()->isNotNull("a.group")
+                    ),
+                    $q_b->expr()->andX(
+                        $q_b->expr()->isNotNull("a.child"),
+                        $q_b->expr()->isNull("a.group")
+                    )
+                ),
+                $q_b->expr()->eq("a.BodLength", $arr["bodyLength"])
+            ))
+            ->getQuery()
+            ->getResults();
+
+        // If none exist, create
+        if (count($existing) <= 0)
+        {
+            $c_at = CacheAttachment::from_parsed($arr);
+            $this->em->persist($c_at);
+        }
     }
 
     /**
