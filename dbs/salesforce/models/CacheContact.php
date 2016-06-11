@@ -23,10 +23,14 @@ class CacheContact
      * @var array of Contact -> CacheContact map
      */
     const parsed_map = array(
-        "Name" => "setName",
-        "Address" => "setAddress",
-        "EmailAddress" => "setEmail",
-        "PhoneNumber" => "setPhone",
+        "FirstName" => "setFirstName",
+        "LastName" => "setLastName",
+        "MailingState" => "setMailingState",
+        "MailingCity" => "setMailingCity",
+        "MailingStreet" => "setMailingStreet",
+        "MailingPostalCode" => "setMailingPostalCode",
+        "Email" => "setEmail",
+        "Phone" => "setPhone",
     );
 
     /**
