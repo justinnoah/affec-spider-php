@@ -159,6 +159,11 @@ class CacheChild
     private $contact;
 
     /**
+     * @var \CacheGroup
+     */
+    private $group;
+
+    /**
      * Constructor
      */
     public function __construct()
@@ -616,6 +621,30 @@ class CacheChild
     public function getContact()
     {
         return $this->contact;
+    }
+
+    /**
+     * Set group
+     *
+     * @param \CacheGroup $group
+     *
+     * @return CacheChild
+     */
+    public function setGroup(\CacheGroup $group = null)
+    {
+        $this->group = $group;
+
+        return $this;
+    }
+
+    /**
+     * Get group
+     *
+     * @return \CacheGroup
+     */
+    public function getGroup()
+    {
+        return $this->group;
     }
 
     /**

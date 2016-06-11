@@ -56,6 +56,9 @@ CacheChild:
         contact:
             targetEntity: CacheContact
             inversedBy: children
+        group:
+            targetEntity: CacheGroup
+            inversedBy: siblings
     oneToMany:
         attachments:
             targetEntity: CacheAttachment

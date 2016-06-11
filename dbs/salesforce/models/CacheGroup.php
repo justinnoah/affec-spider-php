@@ -32,14 +32,7 @@ class CacheGroup
         "RecruitmentStatus" => "setRecruitmentStatusC",
         "RecruitmentUpdate" => "setRecruitmentUpdateC",
         "Region" => "setDistrictC",
-        "Sibling1" => "setChild1FirstNameC",
-        "Sibling2" => "setChild2FirstNameC",
-        "Sibling3" => "setChild3FirstNameC",
-        "Sibling4" => "setChild4FirstNameC",
-        "Sibling5" => "setChild5FirstNameC",
-        "Sibling6" => "setChild6FirstNameC",
-        "Sibling7" => "setChild7FirstNameC",
-        "Sibling8" => "setChild8FirstNameC",
+        "Siblings" => "addSibling",
         "State" => "setStateC",
     );
     /**
@@ -183,6 +176,11 @@ class CacheGroup
     private $contact;
 
     /**
+     * @var \Doctrine\Common\Collections\Collection
+     */
+    private $siblings;
+
+    /**
      * Constructor
      */
     public function __construct()
@@ -299,11 +297,11 @@ class CacheGroup
     /**
      * Set child1FirstNameC
      *
-     * @param \CacheChild $child1FirstNameC
+     * @param string $child1FirstNameC
      *
      * @return CacheGroup
      */
-    public function setChild1FirstNameC(\CacheChild $child1FirstNameC = null)
+    public function setChild1FirstNameC($child1FirstNameC = null)
     {
         $this->Child_1_First_Name__c = $child1FirstNameC;
 
@@ -323,11 +321,11 @@ class CacheGroup
     /**
      * Set child2FirstNameC
      *
-     * @param \CacheChild $child2FirstNameC
+     * @param string $child2FirstNameC
      *
      * @return CacheGroup
      */
-    public function setChild2FirstNameC(\CacheChild $child2FirstNameC = null)
+    public function setChild2FirstNameC($child2FirstNameC = null)
     {
         $this->Child_2_First_Name__c = $child2FirstNameC;
 
@@ -347,11 +345,11 @@ class CacheGroup
     /**
      * Set child3FirstNameC
      *
-     * @param \CacheChild $child3FirstNameC
+     * @param string $child3FirstNameC
      *
      * @return CacheGroup
      */
-    public function setChild3FirstNameC(\CacheChild $child3FirstNameC = null)
+    public function setChild3FirstNameC($child3FirstNameC = null)
     {
         $this->Child_3_First_Name__c = $child3FirstNameC;
 
@@ -371,11 +369,11 @@ class CacheGroup
     /**
      * Set child4FirstNameC
      *
-     * @param \CacheChild $child4FirstNameC
+     * @param string $child4FirstNameC
      *
      * @return CacheGroup
      */
-    public function setChild4FirstNameC(\CacheChild $child4FirstNameC = null)
+    public function setChild4FirstNameC($child4FirstNameC = null)
     {
         $this->Child_4_First_Name__c = $child4FirstNameC;
 
@@ -395,11 +393,11 @@ class CacheGroup
     /**
      * Set child5FirstNameC
      *
-     * @param \CacheChild $child5FirstNameC
+     * @param string $child5FirstNameC
      *
      * @return CacheGroup
      */
-    public function setChild5FirstNameC(\CacheChild $child5FirstNameC = null)
+    public function setChild5FirstNameC($child5FirstNameC = null)
     {
         $this->Child_5_First_Name__c = $child5FirstNameC;
 
@@ -419,11 +417,11 @@ class CacheGroup
     /**
      * Set child6FirstNameC
      *
-     * @param \CacheChild $child6FirstNameC
+     * @param string $child6FirstNameC
      *
      * @return CacheGroup
      */
-    public function setChild6FirstNameC(\CacheChild $child6FirstNameC = null)
+    public function setChild6FirstNameC($child6FirstNameC = null)
     {
         $this->Child_6_First_Name__c = $child6FirstNameC;
 
@@ -443,11 +441,11 @@ class CacheGroup
     /**
      * Set child7FirstNameC
      *
-     * @param \CacheChild $child7FirstNameC
+     * @param string $child7FirstNameC
      *
      * @return CacheGroup
      */
-    public function setChild7FirstNameC(\CacheChild $child7FirstNameC = null)
+    public function setChild7FirstNameC($child7FirstNameC = null)
     {
         $this->Child_7_First_Name__c = $child7FirstNameC;
 
@@ -467,11 +465,11 @@ class CacheGroup
     /**
      * Set child8FirstNameC
      *
-     * @param \CacheChild $child8FirstNameC
+     * @param string $child8FirstNameC
      *
      * @return CacheGroup
      */
-    public function setChild8FirstNameC(\CacheChild $child8FirstNameC = null)
+    public function setChild8FirstNameC($child8FirstNameC = null)
     {
         $this->Child_8_First_Name__c = $child8FirstNameC;
 
@@ -746,6 +744,48 @@ class CacheGroup
     public function getContact()
     {
         return $this->contact;
+    }
+
+    /**
+     * Add sibling
+     *
+     * @param \CacheChild $sibling
+     *
+     * @return CacheGroup
+     */
+    public function addSibling(\CacheChild $sibling)
+    {
+        $this->siblings[] = $sibling;
+
+        return $this;
+    }
+
+    /**
+     * Remove sibling
+     *
+     * @param \CacheChild $sibling
+     */
+    public function removeSibling(\CacheChild $sibling)
+    {
+        $this->siblings->removeElement($sibling);
+    }
+
+    /**
+     * Reset Siblings
+     */
+    public function resetSiblings()
+    {
+        $this->siblings = array();
+    }
+
+    /**
+     * Get siblings
+     *
+     * @return \Doctrine\Common\Collections\Collection
+     */
+    public function getSiblings()
+    {
+        return $this->siblings;
     }
 
     /**
