@@ -72,7 +72,10 @@ class PageParser
 
         // Yay, log things
         $this->log->info($url);
+        $this->data->set_value("LegalStatus", "Unknown");
         $this->data->set_value("PageURL", $this->url);
+        $this->data->set_value("RecruitmentStatus", "Pre-Recruitment");
+        $this->data->set_value("State", "Texas TX");
     }
 
     /**

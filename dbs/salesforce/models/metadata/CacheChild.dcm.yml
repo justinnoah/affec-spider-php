@@ -49,6 +49,7 @@ CacheChild:
             nullable: true
         sf_id:
             type: string
+            nullable: true
     indexes:
         child_index:
             columns: [Adoption_Bulletin_Number__c, Case_Number__c, Name, sf_id]

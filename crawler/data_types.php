@@ -21,9 +21,7 @@ namespace Crawler\DataTypes;
  */
 define("CHILDREN_KEYS", serialize(array(
     "Age",
-    "AdoptionRecruitment",
     "BulletinDate",
-    "BulletinNumber",
     "Ethnicity",
     "Gender",
     "Name",
@@ -45,14 +43,15 @@ define("SIBLING_GROUP_KEYS", serialize(array(
 define("COMMON_KEYS", serialize(array(
     "Attachments",
     "Biography",
+    "BulletinNumber",
     "CaseNumber",
     "CaseWorker",
-    "ImportedFrom",
     "LegalStatus",
     "ListingNotesForFamily",
     "Name",
     "PageURL",
     "Region",
+    "RecruitmentStatus",
     "State",
 )));
 

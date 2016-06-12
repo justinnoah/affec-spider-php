@@ -32,6 +32,7 @@ CacheContact:
             nullable: true
         sf_id:
             type: string
+            nullable: true
     indexes:
         contact_index:
             columns: [LastName, sf_id]
