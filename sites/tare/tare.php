@@ -150,7 +150,7 @@ class TareSite
         $soup = \FluentDOM::QueryCss($result, "text/html");
 
         // Specifically Child links
-        $child_links = array_map(
+        $child_links = array_unique(array_map(
             function($x)
             {
                 return self::BASEURL . $x["href"];
@@ -165,11 +165,12 @@ class TareSite
                         return true;
                     }
                     return false;
-                })
-        );
+                }
+            )
+        ));
 
         // Specifically Sibling Group links
-        $group_links = array_map(
+        $group_links = array_unique(array_map(
             function($x)
             {
                 return self::BASEURL . $x["href"];
@@ -184,12 +185,14 @@ class TareSite
                         return true;
                     }
                     return false;
-                })
-        );
+                }
+            )
+        ));
 
         $parsed_pages = new AllChildren();
 
         // Parse child pages for details to import
+        $this->log->debug("Attempting to parse " . count($child_links) . " children's profiles");
         foreach ($child_links as $clink)
         {
             $child_obj = new PageParser(

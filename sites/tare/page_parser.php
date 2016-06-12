@@ -121,6 +121,7 @@ class PageParser
         }
 
         // Return the parsed object
+        $this->log->debug("Finished Parsing: " . $this->data->get_value("Name"));
         return $this->data;
     }
 
