@@ -73,6 +73,9 @@ class Salesforce
         $this->children_added = array();
         // List of new sibling groups
         $this->groups_added = array();
+
+        // Report generation - create a mailer
+        $this->mailer = new \PHPMailer();
     }
 
     /**
@@ -346,9 +349,6 @@ class Salesforce
         $this->log->debug("Children Count: " . count($children));
         foreach ($children as $child)
         {
-            $this->log->debug(
-                "Upserting " . $child->get_value("Name") . ": " . $child->get_value("PageURL")
-            );
              $this->upsert_parsed_child($child);
         }
         $groups = $all_children->get_sibling_groups();
@@ -366,15 +366,14 @@ class Salesforce
      */
     protected function upsert_parsed_contact($contact)
     {
-        $this->log->debug("What am I: " . print_r($contact, true));
-
         // Transform Data
         $c_dict = $contact->to_array();
         $name = parse_name($c_dict["Name"]);
         $addr = parse_address($c_dict["Address"]);
-        $email = mailparse_rfc822_parse_addresses($c_dict["Email"]);
         $phone = $c_dict["PhoneNumber"];
         $region = $c_dict["Region"];
+        $emails = $this->mailer->parseAddresses($c_dict["Email"]);
+        $email = $emails ? $emails[0]["address"] : "";
 
         // And create an array to import as a CacheContact
         $cache_array = array(
@@ -387,23 +386,30 @@ class Salesforce
             "Email" => $email
         );
 
-        // Find an existing Child with a given TAREId
+        // Find an existing Contact given some details if possibl
         $q_b = $this->em->createQueryBuilder();
+        $fname = $name["FirstName"] ?
+            $q_b->expr()->eq('c.FirstName', "'" . $name['FirstName'] . "'") :
+            $q_b->expr()->isNull("c.FirstName");
+        $lname = $name["LastName"] ?
+            $q_b->expr()->eq('c.LastName', "'" . $name['LastName'] . "'") :
+            $q_b->expr()->isNull("c.LastName");
+        $mail = $email ?
+            $q_b->expr()->eq('c.Email', "'" . $email . "'") :
+            $q_b->expr()->isNull("c.Email");
+        $zip = $addr["MailingPostalCode"] ?
+            $q_b->expr()->eq('c.MailingPostalCode', "'" . $addr['MailingPostalCode'] . "'") :
+            $q_b->expr()->isNull("c.MailingPostalCode");
+        $state = $addr["MailingState"] ?
+            $q_b->expr()->eq('c.MailingState', "'" . $addr['MailingState'] . "'") :
+            $q_b->expr()->isNull("c.MailingState");
+
         $existing = $q_b
             ->select('c')
             ->from("CacheContact", "c")
             ->where($q_b->expr()->orX(
-                $q_b->expr()-andX(
-                    $q_b->expr()->eq('c.FirstName', $name["FirstName"]),
-                    $q_b->expr()->eq('c.LastName', $name["LastName"]),
-                    $q_b->expr()->eq('c.Email', $email)
-                ),
-                $q_b->expr()-andX(
-                    $q_b->expr()->eq('c.FirstName', $name["FirstName"]),
-                    $q_b->expr()->eq('c.LastName', $name["LastName"]),
-                    $q_b->expr()->eq('c.MailingPostalCode', $address["MailingPostalCode"]),
-                    $q_b->expr()->eq('c.MailingState', $address["MailingState"])
-                )
+                $q_b->expr()->andX($fname, $lname, $mail),
+                $q_b->expr()->andX($fname, $lname, $zip, $state)
             ))
             ->getQuery()
             ->getResult();
@@ -467,12 +473,12 @@ class Salesforce
         {
             array_push($this->children_with_updates, $child);
             $c = $existing[0];
-            $c->contact = $cache_contact;
+            $c->setContact($cache_contact);
         // If one doesn't exists, add to list of new children
         } else {
             // Create the new BLTN number
             $db_child = CacheChild::from_parsed($child->to_array());
-            $db_child->contact = $cache_contact;
+            $db_child->setContact($cache_contact);
             $this->em->persist($db_child);
             array_push($this->children_added, $db_child);
             $c = $db_child;
@@ -587,31 +593,24 @@ class Salesforce
     {
         // Convert to Array
         $arr = $attachment->to_array();
+        $q_b = $this->em->createQueryBuilder();
+        $parent = "1 = 1";
         if ($child)
             $arr["child"] = $child;
+            $parent = "a.child";
         if ($group)
             $arr["group"] = $group;
+            $parent = "a.group";
 
         // Look for existing
-        $q_b = $this->em->createQueryBuilder();
         $existing = $q_b
             ->select('a')
-            ->from("Attachment", "a")
-            ->where($q_b->expr()->andX(
-                $q_b->expr()->orX(
-                    $q_b->expr()->andX(
-                        $q_b->expr()->isNull("a.child"),
-                        $q_b->expr()->isNotNull("a.group")
-                    ),
-                    $q_b->expr()->andX(
-                        $q_b->expr()->isNotNull("a.child"),
-                        $q_b->expr()->isNull("a.group")
-                    )
-                ),
-                $q_b->expr()->eq("a.BodLength", $arr["bodyLength"])
-            ))
-            ->getQuery()
-            ->getResults();
+            ->from("CacheAttachment", "a")
+            ->join($parent, "c")
+            ->where(
+                $q_b->expr()->eq("a.BodyLength", "'" . $arr["BodyLength"] . "'")
+            )->getQuery()
+            ->getResult();
 
         // If none exist, create
         if (count($existing) <= 0)
