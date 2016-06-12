@@ -72,6 +72,7 @@ class PageParser
 
         // Yay, log things
         $this->log->info($url);
+        $this->data->set_value("PageURL", $this->url);
     }
 
     /**
@@ -415,8 +416,11 @@ class PageParser
         // DOMNodeList of the child data assuming the selector with magic
         // numbers still works. See line above if  Child data stops parsing
         $selector = "div[id*='#Information'] > div:nth-child(2) div";
+        $name_selector = "div[id*='#Information'] > div:nth-child(2) > div:nth-child(2)";
 
         // Select and Parse!
+        $name = trim($this->soup->querySelector($name_selector)->textContent);
+        $this->data->set_value("Name", $name);
         $this->parse_this_data_info($child_tare_map, $selector);
     }
 
