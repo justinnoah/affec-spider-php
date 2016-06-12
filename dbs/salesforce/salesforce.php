@@ -374,6 +374,9 @@ class Salesforce
         $region = $c_dict["Region"];
         $emails = $this->mailer->parseAddresses($c_dict["Email"]);
         $email = $emails ? $emails[0]["address"] : "";
+        $this->log->debug(
+            "Upserting Contact: " . $name["FirstName"] . " " . $name["LastName"]
+        );
 
         // And create an array to import as a CacheContact
         $cache_array = array(
@@ -436,7 +439,7 @@ class Salesforce
     {
         $name = $child->get_value("Name");
         $url = $child->get_value("PageURL");
-        $this->log->debug("$name: $url");
+        $this->log->debug("Upserting Child: $name - $url");
 
         // Pull Contact and create a CacheContact from it
         $child_contact = $child->get_value("CaseWorker");
@@ -476,7 +479,11 @@ class Salesforce
             $c->setContact($cache_contact);
         // If one doesn't exists, add to list of new children
         } else {
-            // Create the new BLTN number
+            // Parse the age into a birthdate
+            $age_str = $child->get_value("Age");
+            $bday = age_to_birthdate($age_str);
+            $child->set_value("Age", $bday);
+
             $db_child = CacheChild::from_parsed($child->to_array());
             $db_child->setContact($cache_contact);
             $this->em->persist($db_child);
@@ -502,6 +509,7 @@ class Salesforce
      */
     protected function upsert_parsed_group($group)
     {
+        $this->log->debug("Upserting Group");
         // Find an existing Child with a given TAREId
         $qb = $this->em->createQueryBuilder();
         $existing = $qb->select('g')
@@ -591,16 +599,22 @@ class Salesforce
      */
     protected function upsert_parsed_attachment($attachment, $child=null, $group=null)
     {
+        $this->log->debug("Upserting Attachment");
         // Convert to Array
         $arr = $attachment->to_array();
+        $ab = clone($attachment);
+        $b = $ab->to_array();
+        unset($b["Content"]);
+        $this->log->debug("Attachment:\n" . print_r($b, true));
         $q_b = $this->em->createQueryBuilder();
-        $parent = "1 = 1";
         if ($child)
+        {
             $arr["child"] = $child;
             $parent = "a.child";
-        if ($group)
+        } else if ($group) {
             $arr["group"] = $group;
             $parent = "a.group";
+        }
 
         // Look for existing
         $existing = $q_b

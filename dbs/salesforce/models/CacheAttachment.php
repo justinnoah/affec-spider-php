@@ -390,4 +390,3 @@ class CacheAttachment
              throw Exception("ParentId and Content cannot both be NULL");
      }
 }
-?>

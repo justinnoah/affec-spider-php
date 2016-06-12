@@ -87,5 +87,18 @@ function parse_address($addr_str)
     );
 
     return $addr;
+}
 
+/**
+ * Convert integer age into a birthdate
+ *
+ * @param string $age Parsed age
+ * @return string DateTime RFC822 formatted birthdate
+ */
+function age_to_birthdate($age)
+{
+    $age_int = intval(trim((string)$age));
+    $now = new \DateTime();
+    $bday = $now->sub(new \DateInterval("P" . $age_int . "Y6M"));
+    return $bday->format(\DateTime::ATOM);
 }
