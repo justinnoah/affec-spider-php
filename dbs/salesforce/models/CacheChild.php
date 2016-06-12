@@ -38,8 +38,9 @@ class CacheChild
         "PageURL" => "setLinkToChildSPageC",
         "PrimaryLanguage" => "setChildSPrimaryLanguageC",
         "Race" => "setChildSNationalityC",
+        "RecruitmentStatus" => "setRecruitmentStatusC",
         "Region" => "setDistrictC",
-        "State" => "setStateC",
+        "State" => "setChildSStateC",
     );
 
     /**

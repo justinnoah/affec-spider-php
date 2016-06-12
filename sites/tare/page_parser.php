@@ -188,7 +188,7 @@ class PageParser
                 $picture_data = Utils\curl_exec_opts($this->session, $opts);
                 $picture = new Attachment();
                 $picture->from_array(array(
-                    "Profile" => true,
+                    "Profile" => false,
                     "Content" => $picture_data,
                     "BodyLength" => count(unpack("C*", $picture_data)),
                 ));
