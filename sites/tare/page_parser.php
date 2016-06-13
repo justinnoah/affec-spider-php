@@ -44,18 +44,21 @@ class PageParser
      * @param string $type of page to parse
      * @param \Monolog\Handler\StreamHandler $logHandler log handler/dispatcher
      * @param resource $session shared loggged in curl session
+     * @param bool $is_sibling slight parsing modifications for siblings
      */
-    function __construct($base, $url, $type, $logHandler, $session)
+    function __construct($base, $url, $type, $logHandler, $session, $is_sibling = false)
     {
         // Scaffolding
         // Tare baseurl
         $this->base = $base;
-        // path
+        // Path ONLY! no domain
         $this->url = $url;
         // Child or SiblingGroup
         $this->type = $type;
         // Curl Session passed in by TareSite
         $this->session = $session;
+        // Sibling identifier for slight page parsing changes
+        $this->is_sibling = $is_sibling;
 
         // Object creation and logger setup
         if ($type == "Child")
@@ -73,7 +76,7 @@ class PageParser
         // Yay, log things
         $this->log->info($url);
         $this->data->set_value("LegalStatus", "Unknown");
-        $this->data->set_value("PageURL", $this->url);
+        $this->data->set_value("PageURL", $this->base . $this->url);
         $this->data->set_value("RecruitmentStatus", "Pre-Recruitment");
         $this->data->set_value("State", "Texas TX");
     }
@@ -86,6 +89,7 @@ class PageParser
     function parse()
     {
         // Using the curl session we have setup, grab the page data
+        $this->log->debug("URL: " . $this->base . $this->url);
         $opts = array(
             CURLOPT_URL => $this->base . $this->url,
             CURLOPT_POST => false,
@@ -102,13 +106,6 @@ class PageParser
             $this->parse_attachments();
         } catch (\Exception $e) {
             $this->log->error("Falied to parse Attachments for $this->url");
-            $this->log->error($e);
-        }
-        try
-        {
-            $this->parse_caseworker_info();
-        } catch (\Exception $e) {
-            $this->log->error("Falied to parse CaseWorker for $this->url");
             $this->log->error($e);
         }
         try {
@@ -211,9 +208,12 @@ class PageParser
 
     /**
      * Porse Caseworker Data and add it to the Child/Sibling object
+     *
+     * @param string $selector CSS selector for CaseWorker data
      */
-    function parse_caseworker_info()
+    function parse_caseworker_info($selector)
     {
+        $this->log->debug("Parsing CaseWorker Info");
         // TARE to crawler Key map
         $caseworker_tare_map = array(
             "Address" => "Address",
@@ -226,20 +226,7 @@ class PageParser
             "TARE Coordinator" => "Name",
         );
 
-        // CSS Selectors for CaseWorkers
-        $child_cw_selector = "fieldset div";
-        // I hate magic numbers, sadly TARE gives us no choice
-        // If Caseworker parsing breaks in some way....LOOK HERE :XXX:
-        $group_cw_selector = "div#pageContent div:nth-child(1) div:nth-child(6) div";
-
-        if ($this->type == "Child")
-        {
-            // Child page specific casworker query
-            $cw_selected = $this->soup->querySelectorAll($child_cw_selector);
-        } else if ($this->type == "SiblingGroup") {
-            // SiblingGroup page specific casworker query
-            $cw_selected = $this->soup->querySelectorAll($group_cw_selector);
-        }
+        $cw_selected = $this->soup->querySelectorAll($selector);
 
         // CaseWorker data
         $caseworker_data = array();
@@ -299,18 +286,20 @@ class PageParser
 
         // Save the Caseworker data to the Child or SiblingGroup
         $this->data->set_value("CaseWorker", $cw);
+        $this->log->debug("Finished CaseWorker:\n" . print_r($caseworker_data, true));
     }
 
     /**
     * Parse data for $this->data
     *
     * Child and SiblingGroup pages are very similar in many ways. The data
-    * gathered for $this->data can thus be obtained the same way.
+    * gathered for $this->data can thus be obtained almost identically.
     *
     * @param array $map Map of TARE filds to $this->data keys
-    * @param string $selector CSS Selector used to find data
+    * @param string $info_selector CSS Selector for child data
+    * @param string $cn_selector CSS Selector for the Case Number
     */
-    function parse_this_data_info($map, $selector)
+    function parse_this_data_info($map, $info_selector, $cn_selector)
     {
         /**
          * Add data to $this->data if necessary
@@ -336,11 +325,10 @@ class PageParser
         };
 
         // CSS selection for Child or Group page
-        $selected = $this->soup->querySelectorAll($selector);
+        $selected = $this->soup->querySelectorAll($info_selector);
         // cLength is for indexing purposes
         $cLength = $selected->length;
-        $this->log->debug("Selector: " . $selector);
-        $this->log->debug("cLength: " . $cLength);
+
         // $this->log->debug("Selected: " . print_r($selected, true));
         // $this->log->debug("Map: " . print_r($map, true));
         // Iterate through all elements
@@ -394,12 +382,8 @@ class PageParser
         $this->data->set_value("Biography", trim($bioText));
 
         // :XXX: This is why things break
-        $case_number_selector = array(
-            "Child" => "div#pageContent > div:nth-child(1) > div:nth-child(2) > div:nth-child(2) > span",
-            "SiblingGroup" => "div#pageContent > div:nth-child(1) > div:nth-child(6) > div:nth-child(2)",
-        );
-
-        $case_number = $this->soup->querySelector($case_number_selector[$this->type]);
+        $case_number = trim($this->soup->querySelector($cn_selector));
+        $this->log->debug("CASE NUMBER: " . $case_number);
         $this->data->set_value("CaseNumber", trim($case_number));
     }
 
@@ -423,13 +407,27 @@ class PageParser
         // DOMNodeList of the child data assuming the selector with magic
         // numbers still works. See line above if  Child data stops parsing
         $selector = "div[id*='#Information'] > div:nth-child(2) div";
-        $name_selector = "div[id*='#Information'] > div:nth-child(2) > div:nth-child(2)";
+        $name_selector = "div[id*='#Information'] > div:nth-child(2) > div:nth-child(2) > span";
+        if ($this->is_sibling)
+            $cn_selector = "div#pageContent > div > div:nth-child(3) > div:nth-child(2) > span";
+        else
+            $cn_selector = "div#pageContent > div > div:nth-child(2) > div:nth-child(2) > span";
 
         // Select and Parse!
+        print_r("$this->url\n");
         $name = trim($this->soup->querySelector($name_selector)->textContent);
         $this->log->debug("Name: $name");
         $this->data->set_value("Name", $name);
-        $this->parse_this_data_info($child_tare_map, $selector);
+        $this->parse_this_data_info($child_tare_map, $selector, $cn_selector);
+        try
+        {
+            // CSS Selectors for CaseWorkers
+            $cw_selector = "fieldset div";
+            $this->parse_caseworker_info($cw_selector);
+        } catch (\Exception $e) {
+            $this->log->error("Falied to parse CaseWorker for $this->url");
+            $this->log->error($e);
+        }
     }
 
     /**
@@ -437,10 +435,6 @@ class PageParser
      */
     function parse_sibling_group_info()
     {
-        // Only need to grab the bio.
-        // However the 2nd parameter must be a valid  CSS selector
-        $this->parse_this_data_info(array(), "s");
-
         // Parse the individual children in the sibling group
         // :XXX: THIS STUPID MAGIC NUMBER STUFF IS WHAT BREAKS!
         $siblings_list_selector = "div#pageContent > div:nth-child(1) > div:nth-child(5)  span + a";
@@ -451,15 +445,53 @@ class PageParser
         $siblings = array();
         foreach ($child_links as $link)
         {
-            // Full url of the Child profile
-            $full_url = $this->base . $link["href"];
+            $url_arr = parse_url($link["href"]);
+            if (array_key_exists("schema", $url_arr))
+            {
+                $c_url = $url_arr["path"];
+            } else {
+                $c_url = $link["href"];
+            }
             // Prep a page to parse
             $page = new PageParser(
-                $this->base, $link["href"], "Child",
-                $this->log->getHandlers()[0], $this->session
+                $this->base, $c_url, "Child",
+                $this->log->getHandlers()[0], $this->session, true
             );
             // Parse and push it onto the siblings stack
             array_push($siblings, $page->parse());
+        }
+
+        // Set the Sibling Group's name
+        $names = array();
+        foreach ($siblings as $sibling)
+        {
+            array_push($names, $sibling->get_value("Name"));
+        }
+        natsort($names);
+        $sgroup_name = implode(", ", $names);
+        $this->data->set_value("Name", $sgroup_name);
+
+        // CN DIV is the focus point for the CaseWorker selector as well
+        // Since both data are in the same div. The magic number is calc'd
+        // by sibling cout + 1 blank div + 1 since case worker data starts
+        // at that point
+        $cn_div = count($siblings) + 2;
+        // Selectors for the Case Number and the CaseWorker
+        $cw_selector = "div#pageContent > div:nth-child(1) > div:nth-child(5)" .
+            " > div:nth-child(" . $cn_div . ")  div";
+        $cn_selector = "div#pageContent > div:nth-child(1) > div:nth-child(5)" .
+            " > div:nth-child(" . $cn_div . ") > div:nth-child(2)";
+        $this->log->debug("CN DIV: " . $cn_div);
+
+        // Only need to grab the bio.
+        // However the 2nd parameter must be a valid  CSS selector
+        $this->parse_this_data_info(array(), "s", $cn_selector);
+        try
+        {
+            $this->parse_caseworker_info($cw_selector);
+        } catch (\Exception $e) {
+            $this->log->error("Falied to parse CaseWorker for $this->url");
+            $this->log->error($e);
         }
 
         // SiblingGroup["RelatedChildren"] = $siblings

@@ -153,7 +153,7 @@ class TareSite
         $child_links = array_unique(array_map(
             function($x)
             {
-                return self::BASEURL . $x["href"];
+                return $x["href"];
             },
             array_filter(
                 $soup->find("a")->get(),
@@ -173,7 +173,7 @@ class TareSite
         $group_links = array_unique(array_map(
             function($x)
             {
-                return self::BASEURL . $x["href"];
+                return $x["href"];
             },
             array_filter(
                 $soup->find("a")->get(),
@@ -208,6 +208,7 @@ class TareSite
             );
             $parsed_pages->add_child($child_obj->parse());
         }
+
         // Parse group pages for details to import
         $this->log->debug("Attempting to parse " . count($group_links) . " group's profiles");
         foreach ($group_links as $glink)
@@ -217,7 +218,7 @@ class TareSite
             {
                 $url = $url_arr["path"];
             } else {
-                $url = $clink;
+                $url = $glink;
             }
             $group_obj = new PageParser(
                 self::BASEURL, $url, "SiblingGroup",
