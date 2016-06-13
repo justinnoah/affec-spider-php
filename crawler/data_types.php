@@ -27,6 +27,7 @@ define("CHILDREN_KEYS", serialize(array(
     "Name",
     "PrimaryLanguage",
     "Race",
+    "Siblings",
 )));
 
 /**
@@ -132,7 +133,7 @@ class DType implements SpiderCommonInterface
             $this->guarded_array[$key] = $data;
         } else {
             $cls = get_class($this);
-            error_log("Cannot use $slot in a(n) $cls object.");
+            error_log("Cannot use $key in a(n) $cls object.");
         }
     }
 

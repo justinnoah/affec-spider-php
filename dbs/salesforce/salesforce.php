@@ -509,7 +509,9 @@ class Salesforce
      */
     protected function upsert_parsed_group($group)
     {
-        $this->log->debug("Upserting Group");
+        $name = $group->get_value("Name");
+        $url = $group->get_value("PageURL");
+        $this->log->debug("Upserting Group: $name - $url");
         // Find an existing Child with a given TAREId
         $qb = $this->em->createQueryBuilder();
         $existing = $qb->select('g')
@@ -519,22 +521,11 @@ class Salesforce
                         ->getResult();
 
         // Pull Contact and create a CacheContact from it
-        $child_contact = $child->get_value("CaseWorker");
-        $cache_contact = $this->upsert_parsed_contact($child_contact);
+        $group_contact = $group->get_value("CaseWorker");
+        $cache_contact = $this->upsert_parsed_contact($group_contact);
 
         // Children in the Sibling Group
         $children_in_group = $group->get_value("RelatedChildren");
-
-        // Sort Siblings by name
-        uksort($childre_in_group, function($a, $b) {
-            $n = array($a->get_value("Name"), $b->get_value("Name"));
-            natsort($n);
-            $first = $n[0];
-            if ($a->get_value("Name") == $first)
-                return -1;
-            else
-                return 1;
-        });
 
         // Set the sibling group's name
         $names = array();
@@ -548,8 +539,8 @@ class Salesforce
         if ($existing)
         {
             array_push($this->groups_with_updates, $group);
-            $bltn = $existing->getBulletinNumberC();
             $g = $existing[0];
+            $bltn = $g->getBulletinNumberC();
             $g->resetSiblings();
         // If one doesn't exists, add to list of new children
         } else {
@@ -564,21 +555,20 @@ class Salesforce
         // Bulletin Number Addition
         $bulletin_addition = array("", "B", "C", "D", "E", "F", "G", "H");
         // We can only handle a max of 8 Siblings in a group....
-        $sibling_count = count($children_in_group) <= 8 ? count($children_ingroup) : 8;
+        $siblings_count = count($children_in_group);
+        $sibling_count = $siblings_count <= 8 ? $siblings_count : 8;
         // Cache them
-        for ($i=0; i<$sibling_count; $i++)
+        for ($i=0; $i<$sibling_count; $i++)
         {
             $sibling_bltn = $bltn . $bulletin_addition[$i];
-            $sibling_cached = $this->usert_parsed_child(
+            if ($i === 0)
+                $group->set_value("BulletinNumber", $sibling_bltn);
+            $sibling_cached = $this->upsert_parsed_child(
                 $children_in_group[$i], $sibling_bltn, $names
             );
             $g->addSibling($sibling_cached);
         }
-        // Set the groups bulletin number as the first sibling's
-        $groups->set_value(
-            "BulletinNumber",
-            $groups->get_value("Sibling1")->getAdoptionBulletinNumberC()
-        );
+
         // Play nice and increment the bullletin counter
         $this->current_bltn += 1;
 
@@ -602,10 +592,6 @@ class Salesforce
         $this->log->debug("Upserting Attachment");
         // Convert to Array
         $arr = $attachment->to_array();
-        $ab = clone($attachment);
-        $b = $ab->to_array();
-        unset($b["Content"]);
-        $this->log->debug("Attachment:\n" . print_r($b, true));
         $q_b = $this->em->createQueryBuilder();
         if ($child)
         {
