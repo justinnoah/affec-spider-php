@@ -87,7 +87,7 @@ class PageParser
     {
         // Using the curl session we have setup, grab the page data
         $opts = array(
-            CURLOPT_URL => $this->url,
+            CURLOPT_URL => $this->base . $this->url,
             CURLOPT_POST => false,
         );
         $page_data = Utils\curl_exec_opts($this->session, $opts);
@@ -145,14 +145,17 @@ class PageParser
         $profile_picture_url = false;
         if (preg_match("/.*Media\.aspx\/GetPhoto.*/", $node["href"]))
         {
-            $profile_picture_url = $this->base . $node["href"];
+            $profile_picture_url = array_key_exists(
+                "schema", parse_url($node["href"])) ?
+                $node["url"] :
+                $this->base . $node["href"];
             $this->log->debug("Found profile picture url: $profile_picture_url");
         } else {
             $this->log->debug("href: " . $node["href"]);
         }
 
         // Download Picture data and create an attachment for it
-        if ($profile_picture_url)
+        if ($profile_picture_url !== false)
         {
             $opts = array(
                 CURLOPT_URL => $profile_picture_url,
@@ -424,15 +427,9 @@ class PageParser
 
         // Select and Parse!
         $name = trim($this->soup->querySelector($name_selector)->textContent);
+        $this->log->debug("Name: $name");
         $this->data->set_value("Name", $name);
         $this->parse_this_data_info($child_tare_map, $selector);
-    }
-
-    /**
-     * Grab children from sibling group and parse them
-     */
-    function parse_children_in_group()
-    {
     }
 
     /**

@@ -514,7 +514,7 @@ class Salesforce
         $qb = $this->em->createQueryBuilder();
         $existing = $qb->select('g')
                         ->from("CacheGroup", "g")
-                        ->where("g.Case_number__c = " . $group["CaseNumber"])
+                        ->where("g.Case_Number__c = " . $group->get_value("CaseNumber"))
                         ->getQuery()
                         ->getResult();
 

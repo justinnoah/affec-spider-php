@@ -195,17 +195,32 @@ class TareSite
         $this->log->debug("Attempting to parse " . count($child_links) . " children's profiles");
         foreach ($child_links as $clink)
         {
+            $url_arr = parse_url($clink);
+            if (array_key_exists("schema", $url_arr))
+            {
+                $url = $url_arr["path"];
+            } else {
+                $url = $clink;
+            }
             $child_obj = new PageParser(
-                self::BASEURL, $clink, "Child",
+                self::BASEURL, $url, "Child",
                 $this->logHandler, $this->session
             );
             $parsed_pages->add_child($child_obj->parse());
         }
         // Parse group pages for details to import
+        $this->log->debug("Attempting to parse " . count($group_links) . " group's profiles");
         foreach ($group_links as $glink)
         {
+            $url_arr = parse_url($glink);
+            if (array_key_exists("schema", $url_arr))
+            {
+                $url = $url_arr["path"];
+            } else {
+                $url = $clink;
+            }
             $group_obj = new PageParser(
-                self::BASEURL, $glink, "SiblingGroup",
+                self::BASEURL, $url, "SiblingGroup",
                 $this->logHandler, $this->session
             );
             $parsed_pages->add_sibling_group($group_obj->parse());
