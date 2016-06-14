@@ -477,21 +477,31 @@ class PageParser
         // at that point
         $cn_div = count($siblings) + 2;
         // Selectors for the Case Number and the CaseWorker
-        $cw_selector = "div#pageContent > div:nth-child(1) > div:nth-child(5)" .
-            " > div:nth-child(" . $cn_div . ")  div";
-        $cn_selector = "div#pageContent > div:nth-child(1) > div:nth-child(5)" .
-            " > div:nth-child(" . $cn_div . ") > div:nth-child(2)";
-        $this->log->debug("CN DIV: " . $cn_div);
+        $cw_cn_selector = array(
+            "div#pageContent > div:nth-child(1) > " .
+            "div:nth-child(5) > div:nth-child(" . $cn_div . ")  div" =>
+            "div#pageContent > div:nth-child(1) > " .
+            "div:nth-child(5) > div:nth-child(" . $cn_div . ") > div:nth-child(2)",
+            "div#pageContent > div:nth-child(1) > div:nth-child(6) div" =>
+            "div#pageContent > div:nth-child(1) > div:nth-child(6) > div:nth-child(2)"
+        );
 
         // Only need to grab the bio.
         // However the 2nd parameter must be a valid  CSS selector
-        $this->parse_this_data_info(array(), "s", $cn_selector);
-        try
+        foreach ($cw_cn_selector as $cw_selector => $cn_selector)
         {
-            $this->parse_caseworker_info($cw_selector);
-        } catch (\Exception $e) {
-            $this->log->error("Falied to parse CaseWorker for $this->url");
-            $this->log->error($e);
+            if (!$this->data->get_value("CaseNumber"))
+            {
+                $this->log->debug("Using:\n$cw_selector");
+                $this->parse_this_data_info(array(), "s", $cn_selector);
+                try
+                {
+                    $this->parse_caseworker_info($cw_selector);
+                } catch (\Exception $e) {
+                    $this->log->error("Falied to parse CaseWorker for $this->url");
+                    $this->log->error($e);
+                }
+            }
         }
 
         // SiblingGroup["RelatedChildren"] = $siblings

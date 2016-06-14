@@ -377,6 +377,8 @@ class Salesforce
         $this->log->debug(
             "Upserting Contact: " . $name["FirstName"] . " " . $name["LastName"]
         );
+        if (!$addr["MailingState"])
+            $addr["MailingState"] = CURRENT_STATE_SHORT;
 
         // And create an array to import as a CacheContact
         $cache_array = array(
