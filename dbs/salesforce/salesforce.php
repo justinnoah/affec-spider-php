@@ -75,7 +75,7 @@ class Salesforce
         $this->groups_added = array();
 
         // Report generation - create a mailer
-        $this->mailer = new \PHPMailer();
+        $this->mail = new \PHPMailer();
     }
 
     /**
@@ -372,7 +372,7 @@ class Salesforce
         $addr = parse_address($c_dict["Address"]);
         $phone = $c_dict["PhoneNumber"];
         $region = $c_dict["Region"];
-        $emails = $this->mailer->parseAddresses($c_dict["Email"]);
+        $emails = $this->mail->parseAddresses($c_dict["Email"]);
         $email = $emails ? $emails[0]["address"] : "";
         $this->log->debug(
             "Upserting Contact: " . $name["FirstName"] . " " . $name["LastName"]
