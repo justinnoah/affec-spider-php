@@ -77,7 +77,6 @@ function main()
     } catch (\ErrorException $e) {
         printf($e . "\n");
     }
-    $this->log->debug("Fin.");
 }
 
 // GOGOGOGOgogogogogogogogogogogogogo
