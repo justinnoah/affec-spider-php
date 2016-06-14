@@ -627,6 +627,60 @@ class Salesforce
      */
     function exit_handler()
     {
+        // For new, email a report of newly added and update children/groups
+        $html_start = "<table><thead><th>Name</th><th>Tare ID</th><th>URL</th></thead><tbody>";
+        $html_end = "</tbody></table><br><br>";
+
+        // Newly added Children
+        $new_children = "<strong>Children to be Added</strong><br>" . $html_start;
+        foreach ($this->children_added as $child)
+        {
+            $name = $child->getName();
+            $tid = $child->getAdoptionBulletinNumberC();
+            $url = $child->getLinkToChildSPageC();
+            $row = "<tr><td>$name</td><td>$tid</td><td>$url</td></tr>";
+            $new_children .= $row;
+        }
+        $new_children .= $html_end;
+
+        // Updates detected for Children
+        $upd_children = "<strong>Children with Updates</strong><br>" . $html_start;
+        foreach ($this->children_with_updates as $child)
+        {
+            $name = $child->getName();
+            $tid = $child->getAdoptionBulletinNumberC();
+            $url = $child->getLinkToChildSPageC();
+            $row = "<tr><td>$name</td><td>$tid</td><td>$url</td></tr>";
+            $up_children .= $row;
+        }
+        $upd_children .= $html_end;
+
+        // Newly added Groups
+        $new_groups = "<strong>Sibling Groups to be Added</strong><br>" . $html_start;
+        foreach ($this->groups_added as $group)
+        {
+            $name = $group->getName();
+            $tid = $group->getBulletinNumberC();
+            $url = $group->getChildrenSWebpageC();
+            $row = "<tr><td>$name</td><td>$tid</td><td>$url</td></tr>";
+            $new_groups .= $row;
+        }
+        $new_groups .= $html_end;
+
+        // Updates detected for Groups
+        $upd_groups = "<strong>Sibling Groups with Updates</strong><br>" . $html_start;
+        foreach ($this->groups_added as $group)
+        {
+            $name = $group->getName();
+            $tid = $group->getBulletinNumberC();
+            $url = $group->getChildrenSWebpageC();
+            $row = "<tr><td>$name</td><td>$tid</td><td>$url</td></tr>";
+            $new_groups .= $row;
+        }
+        $upd_groups .= $html_end;
+
+        // HTML For report
+        $full_html = $new_children . $upd_children . $new_groups . $upd_groups;
     }
 }
 ?>

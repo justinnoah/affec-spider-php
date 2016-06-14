@@ -492,7 +492,9 @@ class PageParser
             "div#pageContent > div:nth-child(1) > div:nth-child(5) > " .
             "div:nth-child(1) > div:nth-child(1) > div:nth-child(" . $sib_count . ")",
             // Layout 5
-            "div#pageContent > div:nth-child(1) > div:nth-child(6)"
+            "div#pageContent > div:nth-child(1) > div:nth-child(6)",
+            // Layout 6
+            "div#pageContent > div:nth-child(1) > div:nth-child(5) > div:nth-child(2)"
         );
 
         $cn_selector = "";
