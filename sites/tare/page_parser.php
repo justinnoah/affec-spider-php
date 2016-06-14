@@ -95,6 +95,14 @@ class PageParser
             CURLOPT_POST => false,
         );
         $page_data = Utils\curl_exec_opts($this->session, $opts);
+        if (curl_getinfo($this->session)["url"] != $this->base . $this->url)
+        {
+            // Not matching
+            $this->log->debug("URL Redirected: " . curl_getinfo($this->session)["url"]);
+            $this->log->debug("URL Wanted: " . $this->base . $this->url);
+            return null;
+        }
+
         $this->soup = new \FluentDOM\Document();
         $this->soup->loadHTML($page_data);
         $this->soup->normalize();

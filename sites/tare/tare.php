@@ -206,7 +206,13 @@ class TareSite
                 self::BASEURL, $url, "Child",
                 $this->logHandler, $this->session
             );
-            $parsed_pages->add_child($child_obj->parse());
+            $child = $child_obj->parse();
+            if ($child != null)
+            {
+                $parsed_pages->add_child($child);
+            } else {
+                $this->log->debug("Failed to Parse Child: " . self::BASEURL . $url);
+            }
         }
 
         // Parse group pages for details to import
@@ -224,7 +230,13 @@ class TareSite
                 self::BASEURL, $url, "SiblingGroup",
                 $this->logHandler, $this->session
             );
-            $parsed_pages->add_sibling_group($group_obj->parse());
+            $group = $group_obj->parse();
+            if ($group != null)
+            {
+                $parsed_pages->add_sibling_group($group);
+            } else {
+                $this->log->debug("Failed to Parse Group: " . self::BASEURL . $url);
+            }
         }
 
         return $parsed_pages;
