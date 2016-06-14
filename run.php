@@ -59,8 +59,8 @@ function search_and_import($cfg)
 
     $tare = new TareSite($cfg["sites"]["tare"], $logHandler);
     $sf = new Salesforce($cfg["databases"]["salesforce"], $logHandler);
-    // $dot = Utils\string_dot(range("a", "z"), range("a", "z"));
-    $dot = Utils\string_dot(range("a", "a"), range("a", "a"));
+    $dot = Utils\string_dot(range("a", "z"), range("a", "z"));
+    // $dot = Utils\string_dot(range("a", "a"), range("d", "d"));
     foreach ($dot as $name)
     {
         $results = $tare->search_by_name($name);

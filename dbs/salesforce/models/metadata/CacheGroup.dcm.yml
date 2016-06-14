@@ -58,6 +58,7 @@ CacheGroup:
             type: string
         Recruitment_Update__c:
             type: string
+            nullable: true
         State__c:
             type: string
         sf_id:

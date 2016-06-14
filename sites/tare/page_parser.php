@@ -475,33 +475,48 @@ class PageParser
         // Since both data are in the same div. The magic number is calc'd
         // by sibling cout + 1 blank div + 1 since case worker data starts
         // at that point
-        $cn_div = count($siblings) + 2;
+        $sib_count = count($siblings) + 1;
+        $sib_spaced = $sib_count + 1;
         // Selectors for the Case Number and the CaseWorker
-        $cw_cn_selector = array(
+        $cn_selectors = array(
+            // Layout 1
             "div#pageContent > div:nth-child(1) > " .
-            "div:nth-child(5) > div:nth-child(" . $cn_div . ")  div" =>
-            "div#pageContent > div:nth-child(1) > " .
-            "div:nth-child(5) > div:nth-child(" . $cn_div . ") > div:nth-child(2)",
-            "div#pageContent > div:nth-child(1) > div:nth-child(6) div" =>
-            "div#pageContent > div:nth-child(1) > div:nth-child(6) > div:nth-child(2)"
+            "div:nth-child(5) > div:nth-child(" . $sib_spaced . ")",
+            // Layout 2
+            "div#pageContent > div:nth-child(1) > div:nth-child(5) > " .
+            "div:nth-child(1) > div:nth-child(" . $sib_count . ")",
+            // Layout 3
+            "div#pageContent > div:nth-child(1) > div:nth-child(5) > " .
+            "div:nth-child(2) > div:nth-child(" . $sib_count . ")",
+            // Layout 4
+            "div#pageContent > div:nth-child(1) > div:nth-child(5) > " .
+            "div:nth-child(1) > div:nth-child(1) > div:nth-child(" . $sib_count . ")",
+            // Layout 5
+            "div#pageContent > div:nth-child(1) > div:nth-child(6)"
         );
 
-        // Only need to grab the bio.
-        // However the 2nd parameter must be a valid  CSS selector
-        foreach ($cw_cn_selector as $cw_selector => $cn_selector)
+        $cn_selector = "";
+        $cw_selector = "";
+        for ($i=0; $i<count($cn_selectors); $i++)
         {
-            if (!$this->data->get_value("CaseNumber"))
+            $tare_id_label_selector = $cn_selectors[$i] . " > div:nth-child(1)";
+            $text = trim($this->soup->querySelector($tare_id_label_selector)->textContent);
+            if (strtolower($text) == "tare id")
             {
-                $this->log->debug("Using:\n$cw_selector");
-                $this->parse_this_data_info(array(), "s", $cn_selector);
-                try
-                {
-                    $this->parse_caseworker_info($cw_selector);
-                } catch (\Exception $e) {
-                    $this->log->error("Falied to parse CaseWorker for $this->url");
-                    $this->log->error($e);
-                }
+                $cn_selector = $cn_selectors[$i] . " > div:nth-child(2)";
+                $cw_selector = $cn_selectors[$i] . " div";
+                break;
             }
+        }
+
+        $this->log->debug("Using:\n$cw_selector");
+        $this->parse_this_data_info(array(), "s", $cn_selector);
+        try
+        {
+            $this->parse_caseworker_info($cw_selector);
+        } catch (\Exception $e) {
+            $this->log->error("Falied to parse CaseWorker for $this->url");
+            $this->log->error($e);
         }
 
         // SiblingGroup["RelatedChildren"] = $siblings

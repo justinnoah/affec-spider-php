@@ -23,8 +23,8 @@ class CacheGroup
      * @var array sf_map  Attachment -> CacheGroup
      */
     const parsed_map = array(
-        "Biography" => "setChildren_s_Bio__c",
-        "BulletinNumber" => "Bulletin_Number__c",
+        "Biography" => "setChildrenSBioC",
+        "BulletinNumber" => "setBulletinNumberC",
         "CaseNumber" => "setCaseNumberC",
         "LegalStatus" => "setLegalStatus2C",
         "Name" => "setName",
