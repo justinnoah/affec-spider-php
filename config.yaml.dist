@@ -12,3 +12,12 @@ databases:
         cache_db:
             driver: pdo_sqlite
             path: ./derp.sql
+        mail:
+            username: example@example.com
+            password: password
+            host: smtp.example.com
+            port: 587
+            smtp_auth: true
+            smtp_secure: tls
+            send_as: example@example.com
+            send_to: example@example.com

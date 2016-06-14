@@ -15,8 +15,6 @@
 
 namespace Crawler;
 
-error_reporting(E_ERROR);
-
 // Third Party includes
 include("vendor/autoload.php");
 
@@ -79,6 +77,7 @@ function main()
     } catch (\ErrorException $e) {
         printf($e . "\n");
     }
+    $this->log->debug("Fin.");
 }
 
 // GOGOGOGOgogogogogogogogogogogogogo

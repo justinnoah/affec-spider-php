@@ -76,6 +76,7 @@ class Salesforce
 
         // Report generation - create a mailer
         $this->mail = new \PHPMailer();
+        $this->mail->isSMTP();
     }
 
     /**
@@ -627,6 +628,8 @@ class Salesforce
      */
     function exit_handler()
     {
+        $this->log->debug("Generating Report");
+
         // For new, email a report of newly added and update children/groups
         $html_start = "<table><thead><th>Name</th><th>Tare ID</th><th>URL</th></thead><tbody>";
         $html_end = "</tbody></table><br><br>";
@@ -681,6 +684,31 @@ class Salesforce
 
         // HTML For report
         $full_html = $new_children . $upd_children . $new_groups . $upd_groups;
+
+        // Mailer options - move to config later
+        $this->mail->Host = $cfg["mail"]["host"];
+        $this->mail->SMTPAuth = $cfg["mail"]["smtp_auth"];
+        $this->mail->Username = $cfg["mail"]["username"];
+        $this->mail->Password = $cfg["mail"]["password"];
+        $this->mail->SMPTSecure = $cfg["mail"]["smtp_secure"];
+        $this->mail->Port = $cfg["mail"]["port"];
+        $this->mail->SMTPDebug = 2;
+
+        $this->mail->setFrom($cfg["mail"]["send_as"]);
+        $this->mail->addAddress($cfg["mail"]["send_to"]);
+        $this->mail->isHTML(true);
+
+        $this->mail->Subject = "TARE Log: " . date_format(new \DateTime("now"), \DateTime::ATOM);
+        $this->mail->Body = $full_html;
+
+        $this->log->debug("Sending Report");
+        if (!$this->mail->send())
+        {
+            $this->log->debug("Message could not be sent.");
+            $this->log->debug($this->mail->ErrorInfo);
+        } else {
+            $this->log->debug("Message sent.");
+        }
     }
 }
 ?>
