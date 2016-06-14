@@ -52,6 +52,7 @@ class Salesforce
         $this->sf_sandbox = $cfg["sandbox"];
         $this->sf_wsdl = $this->sf_sandbox ? "test" : "live";
         $this->cache_cfg = $cfg["cache_db"];
+        $this->cfg = $cfg;
 
         // Setup logging
         $this->log = new \Monolog\Logger("Salesforce");
