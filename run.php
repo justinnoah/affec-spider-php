@@ -15,11 +15,7 @@
 
 namespace Crawler;
 
-// If we are on PHP 7 or better, force type checking
-if (version_compare(phpversion(), '7.0.0', '>='))
-{
-    declare(strict_types=1);
-}
+error_reporting(E_ERROR);
 
 // Third Party includes
 include("vendor/autoload.php");
