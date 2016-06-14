@@ -679,7 +679,7 @@ class Salesforce
             $tid = $group->getCaseNumberC();
             $url = $group->getChildrenSWebpageC();
             $row = "<tr><td>$name</td><td>$tid</td><td>$url</td></tr>";
-            $new_groups .= $row;
+            $upd_groups .= $row;
         }
         $upd_groups .= $html_end;
 

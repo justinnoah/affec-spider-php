@@ -48,19 +48,30 @@ function setup_log_handler($logfile="./spider.log")
  */
 function search_and_import($cfg)
 {
+    // Logger
     $logHandler = setup_log_handler();
     $log = new \Monolog\Logger("Runner");
-
-    $tare = new TareSite($cfg["sites"]["tare"], $logHandler);
+    // Database backend
     $sf = new Salesforce($cfg["databases"]["salesforce"], $logHandler);
-    $dot = Utils\string_dot(range("a", "z"), range("a", "z"));
-    // $dot = Utils\string_dot(range("a", "a"), range("d", "d"));
-    foreach ($dot as $name)
+    // Sites
+    $tare = new TareSite($cfg["sites"]["tare"], $logHandler);
+    $sites = array(
+        $tare,
+    );
+    // Do the work
+    foreach ($sites as $site)
     {
-        $results = $tare->search_by_name($name);
-        $sf->import_all_children($results);
+        // $dot = Utils\string_dot(range("a", "z"), range("a", "z"));
+        $dot = Utils\string_dot(range("a", "a"), range("a", "a"));
+        foreach ($dot as $name)
+        {
+            // Grab a chunk of the children
+            $results = $site->search_by_name($name);
+            // Add the small chunk of children to the database
+            $sf->import_all_children($results);
+        }
+        $sf->exit_handler();
     }
-    $sf->exit_handler();
 }
 
 /**

@@ -39,7 +39,7 @@ define("SIBLING_GROUP_KEYS", serialize(array(
 )));
 
 /**
- * Commone keys for Child and SiblingGroup objects
+ * Common keys for Child and SiblingGroup objects
  */
 define("COMMON_KEYS", serialize(array(
     "Attachments",
