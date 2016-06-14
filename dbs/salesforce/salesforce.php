@@ -639,7 +639,7 @@ class Salesforce
         foreach ($this->children_added as $child)
         {
             $name = $child->getName();
-            $tid = $child->getAdoptionBulletinNumberC();
+            $tid = $child->getCaseNumberC();
             $url = $child->getLinkToChildSPageC();
             $row = "<tr><td>$name</td><td>$tid</td><td>$url</td></tr>";
             $new_children .= $row;
@@ -651,7 +651,7 @@ class Salesforce
         foreach ($this->children_with_updates as $child)
         {
             $name = $child->getName();
-            $tid = $child->getAdoptionBulletinNumberC();
+            $tid = $child->getCaseNumberC();
             $url = $child->getLinkToChildSPageC();
             $row = "<tr><td>$name</td><td>$tid</td><td>$url</td></tr>";
             $up_children .= $row;
@@ -663,7 +663,7 @@ class Salesforce
         foreach ($this->groups_added as $group)
         {
             $name = $group->getName();
-            $tid = $group->getBulletinNumberC();
+            $tid = $group->getCaseNumberC();
             $url = $group->getChildrenSWebpageC();
             $row = "<tr><td>$name</td><td>$tid</td><td>$url</td></tr>";
             $new_groups .= $row;
@@ -675,7 +675,7 @@ class Salesforce
         foreach ($this->groups_added as $group)
         {
             $name = $group->getName();
-            $tid = $group->getBulletinNumberC();
+            $tid = $group->getCaseNumberC();
             $url = $group->getChildrenSWebpageC();
             $row = "<tr><td>$name</td><td>$tid</td><td>$url</td></tr>";
             $new_groups .= $row;
@@ -686,16 +686,16 @@ class Salesforce
         $full_html = $new_children . $upd_children . $new_groups . $upd_groups;
 
         // Mailer options - move to config later
-        $this->mail->Host = $cfg["mail"]["host"];
-        $this->mail->SMTPAuth = $cfg["mail"]["smtp_auth"];
-        $this->mail->Username = $cfg["mail"]["username"];
-        $this->mail->Password = $cfg["mail"]["password"];
-        $this->mail->SMPTSecure = $cfg["mail"]["smtp_secure"];
-        $this->mail->Port = $cfg["mail"]["port"];
+        $this->mail->Host = $this->cfg["mail"]["host"];
+        $this->mail->SMTPAuth = $this->cfg["mail"]["smtp_auth"];
+        $this->mail->Username = $this->cfg["mail"]["username"];
+        $this->mail->Password = $this->cfg["mail"]["password"];
+        $this->mail->SMPTSecure = $this->cfg["mail"]["smtp_secure"];
+        $this->mail->Port = $this->cfg["mail"]["port"];
         $this->mail->SMTPDebug = 2;
 
-        $this->mail->setFrom($cfg["mail"]["send_as"]);
-        $this->mail->addAddress($cfg["mail"]["send_to"]);
+        $this->mail->setFrom($this->cfg["mail"]["send_as"]);
+        $this->mail->addAddress($this->cfg["mail"]["send_to"]);
         $this->mail->isHTML(true);
 
         $this->mail->Subject = "TARE Log: " . date_format(new \DateTime("now"), \DateTime::ATOM);
