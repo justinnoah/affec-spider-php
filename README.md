@@ -7,11 +7,12 @@ Setup
 -----
 
 `composer install`
+ vendor/bin/doctrine orm:schema-tool:create
 
 Configure
 ---------
 
-`cp config.yaml.dist config.yaml`
+`cp config.yml.dist config.yml`
 
 Modify as necessary.
 
@@ -19,12 +20,3 @@ Run
 ---
 
 `php run.php`
-
-Troubleshooting
----------------
-
-Accidentally delete config.yaml and config.yaml.dist?
-
-`php gen_new_config.php`
-
-This will regenerate config.yaml.dist

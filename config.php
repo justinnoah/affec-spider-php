@@ -22,7 +22,7 @@ use Symfony\Component\Yaml\Exception\ParseException;
  *
  * @param string $config config yaml
  */
-function load_config($config=__DIR__."/config.yaml")
+function load_config($config=__DIR__."/config.yml")
 {
     $file  = file_get_contents($config);
     try {

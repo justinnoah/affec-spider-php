@@ -10,6 +10,6 @@ composer.phar
 # composer.lock
 
 ### Project Specific ###
-config.yaml
+config.yml
 spider.log
 *.sql
