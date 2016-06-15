@@ -215,7 +215,7 @@ class CacheChild
      */
     public function setCaseNumberC($caseNumberC)
     {
-        $this->Case_number__c = $caseNumberC;
+        $this->Case_Number__c = $caseNumberC;
 
         return $this;
     }

@@ -478,8 +478,8 @@ class Salesforce
         // If one exists, add to list of children to check for updates
         if ($existing)
         {
-            array_push($this->children_with_updates, $child);
             $c = $existing[0];
+            array_push($this->children_with_updates, $c);
             $c->setContact($cache_contact);
         // If one doesn't exists, add to list of new children
         } else {
@@ -491,8 +491,8 @@ class Salesforce
             $db_child = CacheChild::from_parsed($child->to_array());
             $db_child->setContact($cache_contact);
             $this->em->persist($db_child);
-            array_push($this->children_added, $db_child);
             $c = $db_child;
+            array_push($this->children_added, $c);
         }
 
         // Attachment things
@@ -542,16 +542,16 @@ class Salesforce
         // If one exists, add to list of children to check for updates
         if ($existing)
         {
-            array_push($this->groups_with_updates, $group);
             $g = $existing[0];
+            array_push($this->groups_with_updates, $g);
             $bltn = $g->getBulletinNumberC();
             $g->resetSiblings();
         // If one doesn't exists, add to list of new children
         } else {
             $db_group = CacheGroup::from_parsed($group->to_array());
             $this->em->persist($db_group);
-            array_push($this->groups_added, $db_group);
             $g = $db_group;
+            array_push($this->groups_added, $g);
             $bltn = CURRENT_STATE_SHORT . $this->current_bltn;
             $this->current_bltn += 1;
         }
@@ -636,44 +636,44 @@ class Salesforce
         $html_end = "</tbody></table><br><br>";
 
         // Newly added Children
-        $new_children = "<strong>Children to be Added</strong><br>" . $html_start;
+        $new_children = "<strong>" . count($this->children_added) . " Children to be Added</strong><br>" . $html_start;
         foreach ($this->children_added as $child)
         {
             $name = $child->getName();
             $tid = $child->getCaseNumberC();
             $url = $child->getLinkToChildSPageC();
-            $row = "<tr><td>$name</td><td>$tid</td><td>$url</td></tr>";
+            $row = "<tr><td>$name</td><td>$tid</td><td><a href='$url'>$url</a></td></tr>";
             $new_children .= $row;
         }
         $new_children .= $html_end;
 
         // Updates detected for Children
-        $upd_children = "<strong>Children with Updates</strong><br>" . $html_start;
+        $upd_children = "<strong>" . count($this->children_with_updates) . " Children to Check for Changes</strong><br>" . $html_start;
         foreach ($this->children_with_updates as $child)
         {
             $name = $child->getName();
             $tid = $child->getCaseNumberC();
             $url = $child->getLinkToChildSPageC();
-            $row = "<tr><td>$name</td><td>$tid</td><td>$url</td></tr>";
-            $up_children .= $row;
+            $row = "<tr><td>$name</td><td>$tid</td><td><a href='$url'>$url</a></td></tr>";
+            $upd_children .= $row;
         }
         $upd_children .= $html_end;
 
         // Newly added Groups
-        $new_groups = "<strong>Sibling Groups to be Added</strong><br>" . $html_start;
+        $new_groups = "<strong>" . count($this->groups_added) . " Sibling Groups to be Added</strong><br>" . $html_start;
         foreach ($this->groups_added as $group)
         {
             $name = $group->getName();
             $tid = $group->getCaseNumberC();
             $url = $group->getChildrenSWebpageC();
-            $row = "<tr><td>$name</td><td>$tid</td><td>$url</td></tr>";
+            $row = "<tr><td>$name</td><td>$tid</td><td><a href='$url'>$url</a></td></tr>";
             $new_groups .= $row;
         }
         $new_groups .= $html_end;
 
         // Updates detected for Groups
-        $upd_groups = "<strong>Sibling Groups with Updates</strong><br>" . $html_start;
-        foreach ($this->groups_added as $group)
+        $upd_groups = "<strong>" . count($this->groups_with_updates) . " Sibling Groups to Check for Changes</strong><br>" . $html_start;
+        foreach ($this->groups_with_updates as $group)
         {
             $name = $group->getName();
             $tid = $group->getCaseNumberC();
